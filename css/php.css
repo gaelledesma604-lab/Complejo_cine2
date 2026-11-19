@@ -1,0 +1,25 @@
+/* ==========================================================
+   php.css: ajustes que necesita el diseño ahora que no hay JavaScript.
+   Se carga DESPUÉS de las otras hojas de estilo, por eso pisa lo que haga falta.
+   ========================================================== */
+
+/* ---------- Menús desplegables ----------
+   Antes el menú se abría cuando JavaScript le ponía la clase "abierto".
+   Ahora lo abre el propio navegador con <details open>, así que repetimos
+   esos estilos usando el atributo [open]. */
+summary.btn-menu { list-style: none; cursor: pointer; }
+summary.btn-menu::-webkit-details-marker { display: none; } /* oculta el triangulito de Safari */
+.item-menu[open] .btn-menu { border-color: var(--violeta); }
+.item-menu[open] .btn-menu::after { transform: rotate(225deg); }
+.item-menu[open] .desplegable { opacity: 1; visibility: visible; transform: none; }
+/* Las opciones ahora son enlaces <a> en lugar de botones */
+a.opcion { text-decoration: none; color: inherit; }
+
+/* ---------- Formularios de usuario (ahora son páginas, no ventanas) ---------- */
+main > .modal { margin: 1rem auto 0; animation: aparecer .25s ease; }
+.cambiar a { color: var(--dorado); text-decoration: underline; }
+.fila-botones a { display: inline-block; text-align: center; }
+.acciones-usuario form { display: inline-flex; }
+
+/* El botón "Ver toda la cartelera" ahora es un enlace */
+.vacio a.btn-prim { display: inline-block; }
