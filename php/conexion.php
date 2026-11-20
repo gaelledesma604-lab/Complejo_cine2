@@ -8,7 +8,7 @@
 // Ruta del archivo de la base. __DIR__ es la carpeta de ESTE archivo (php/),
 // por eso subimos un nivel (..) y entramos a db/.
 // El archivo .db no se sube a GitHub (está en .gitignore): se crea con db/instalar.php
-const RUTA_DB = __DIR__ . '/../db/cinenova.db';
+const RUTA_DB = __DIR__ . '/../database/complejo_cine.sql';
 
 /* Devuelve la conexión (objeto PDO). La primera vez la crea y las siguientes
    reutiliza la misma, gracias a "static". */
