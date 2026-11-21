@@ -139,9 +139,24 @@ CREATE TABLE IF NOT EXISTS "Tipo_funcion" (
 	"descripcion"	TEXT,
 	PRIMARY KEY("ID_Tipo_funcion" AUTOINCREMENT)
 );
+CREATE TABLE IF NOT EXISTS "Roles" (
+	"ID_Rol"	INTEGER,
+	"nombre_rol"	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("ID_Rol" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "Usuarios" (
+	"ID_Usuario"	INTEGER,
+	"nombre_usuario"	TEXT NOT NULL UNIQUE CHECK(length("nombre_usuario") >= 3),
+	"correo_usuario"	TEXT NOT NULL UNIQUE CHECK("correo_usuario" LIKE '%_@_%._%'),
+	"password_hash"	TEXT NOT NULL,
+	"estado_usuario"	INTEGER NOT NULL DEFAULT 1 CHECK("estado_usuario" IN (0, 1)),
+	"ID_Rol"	INTEGER NOT NULL,
+	PRIMARY KEY("ID_Usuario" AUTOINCREMENT),
+	FOREIGN KEY("ID_Rol") REFERENCES "Roles"("ID_Rol")
+);
 CREATE TABLE IF NOT EXISTS "Ubicaciones" (
 	"ID_ubicacion"	INTEGER,
-	"Ubicacion"	TEXT NOT NULL UNIQUE,
+	"nombre_ubicacion"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("ID_ubicacion" AUTOINCREMENT)
 );
 INSERT INTO "Cines" VALUES (1,'Cine Centro','centro@cines.com','+54 11 4000-0001',2,1);
@@ -235,6 +250,8 @@ INSERT INTO "Tarifas" VALUES (39,'00:00','23:59',5000,4,2,2);
 INSERT INTO "Tarifas" VALUES (40,'00:00','23:59',5000,5,2,2);
 INSERT INTO "Tarifas" VALUES (41,'00:00','23:59',6000,6,2,2);
 INSERT INTO "Tarifas" VALUES (42,'00:00','23:59',6000,7,2,2);
+INSERT INTO "Roles" VALUES (1,'usuario');
+INSERT INTO "Roles" VALUES (2,'admin');
 INSERT INTO "Tipo_entrada" VALUES (1,'Mayor','Entrada general');
 INSERT INTO "Tipo_entrada" VALUES (2,'Menor','Menores de edad');
 INSERT INTO "Tipo_entrada" VALUES (3,'Jubilado','Jubilados y pensionados');
