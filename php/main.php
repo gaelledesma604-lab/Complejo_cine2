@@ -24,6 +24,7 @@ require_once __DIR__ . '/conexion.php';
 require_once __DIR__ . '/peliculas.php';
 require_once __DIR__ . '/usuarios.php';
 require_once __DIR__ . '/navegacion.php';
+require_once __DIR__ . '/funciones.php';
 
 /* Cada página lo llama una vez al principio.
    $base   = ruta hacia la raíz del proyecto ("" en index.php, "../" en pages/)
@@ -54,6 +55,7 @@ function abrir_pagina(string $titulo): void
           <link rel="stylesheet" href="{$base}css/peliculas.css">
           <link rel="stylesheet" href="{$base}css/responsive.css">
           <link rel="stylesheet" href="{$base}css/php.css">
+          <link rel="stylesheet" href="{$base}css/entradas.css">
         </head>
         <body>
           <header id="cabecera">

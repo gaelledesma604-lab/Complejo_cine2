@@ -22,6 +22,16 @@ function abrir_sesion_usuario(int $id, string $nombre, string $rol): void
     $_SESSION['usuario'] = ['id' => $id, 'nombre' => $nombre, 'rol' => $rol];
 }
 
+/* A dónde ir después de iniciar sesión o crear la cuenta. Si la persona venía de una página que pide
+   sesión (por ejemplo, comprar), esa página se guardó en $_SESSION['volver']. Solo se acepta una dirección
+   interna con forma "pages/algo.php?clave=valor": así nadie puede mandar a otra web con un enlace armado. */
+function destino_tras_login(): string
+{
+    $volver = (string)($_SESSION['volver'] ?? '');
+    unset($_SESSION['volver']);
+    return preg_match('#^pages/[a-z_]+\.php(\?[A-Za-z0-9=&_]*)?$#', $volver) ? $volver : 'index.php';
+}
+
 /* Token secreto que viaja dentro de cada formulario. Sirve para comprobar que el formulario
    lo envió esta misma persona desde nuestra página y no otra web (protección CSRF). */
 function token_csrf(): string
@@ -50,6 +60,7 @@ function pintar_sesion(): string
     if ($usuario) {
         $salir = e(BASE . 'pages/logout.php');
         return '<span class="saludo">Hola, ' . e($usuario['nombre']) . '</span>'
+             . '<a class="btn-sec" href="' . e(BASE . 'pages/mis_entradas.php') . '">Mis entradas</a>'
              . '<form method="post" action="' . $salir . '"><button type="submit" class="btn-sec">Cerrar sesión</button></form>';
     }
     return '<a class="btn-sec" href="' . e(BASE . 'pages/login.php') . '">Iniciar sesión</a>'
@@ -79,7 +90,7 @@ function procesar_login(string $correo, string $password): string
     }
 
     abrir_sesion_usuario((int)$fila['ID_Usuario'], $fila['nombre_usuario'], $fila['nombre_rol']);
-    header('Location: ' . BASE . 'index.php');
+    header('Location: ' . BASE . destino_tras_login());
     exit;
 }
 
@@ -119,7 +130,7 @@ function procesar_registro(string $nombre, string $correo, string $password, str
     }
 
     abrir_sesion_usuario((int)$pdo->lastInsertId(), $nombre, 'usuario');
-    header('Location: ' . BASE . 'index.php');
+    header('Location: ' . BASE . destino_tras_login());
     exit;
 }
 

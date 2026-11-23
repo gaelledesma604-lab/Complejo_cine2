@@ -39,9 +39,11 @@ CREATE TABLE IF NOT EXISTS "Entradas" (
 	"numero_butaca"	INTEGER NOT NULL CHECK("numero_butaca" > 0),
 	"ID_funcion"	INTEGER NOT NULL,
 	"ID_tipo_entrada"	INTEGER NOT NULL,
+	"ID_Usuario"	INTEGER,
 	PRIMARY KEY("ID_entrada" AUTOINCREMENT),
 	FOREIGN KEY("ID_funcion") REFERENCES "Funciones"("ID_funcion"),
-	FOREIGN KEY("ID_tipo_entrada") REFERENCES "Tipo_entrada"("ID_tipo_entrada")
+	FOREIGN KEY("ID_tipo_entrada") REFERENCES "Tipo_entrada"("ID_tipo_entrada"),
+	FOREIGN KEY("ID_Usuario") REFERENCES "Usuarios"("ID_Usuario")
 );
 CREATE TABLE IF NOT EXISTS "Funciones" (
 	"ID_funcion"	INTEGER,
@@ -182,10 +184,10 @@ INSERT INTO "Dia_semana" VALUES (4,'Jueves');
 INSERT INTO "Dia_semana" VALUES (5,'Viernes');
 INSERT INTO "Dia_semana" VALUES (6,'Sabado');
 INSERT INTO "Dia_semana" VALUES (7,'Domingo');
-INSERT INTO "Entradas" VALUES (1,'2026-11-19',6000,1,'A',1,1,1);
-INSERT INTO "Entradas" VALUES (2,'2026-11-19',4500,1,'A',2,1,2);
-INSERT INTO "Entradas" VALUES (3,'2026-11-19',4000,1,'B',5,2,3);
-INSERT INTO "Entradas" VALUES (4,'2026-11-21',7500,1,'C',3,4,1);
+INSERT INTO "Entradas" VALUES (1,'2026-11-19',6000,1,'A',1,1,1,NULL);
+INSERT INTO "Entradas" VALUES (2,'2026-11-19',4500,1,'A',2,1,2,NULL);
+INSERT INTO "Entradas" VALUES (3,'2026-11-19',4000,1,'B',5,2,3,NULL);
+INSERT INTO "Entradas" VALUES (4,'2026-11-21',7500,1,'C',3,4,1,NULL);
 INSERT INTO "Funciones" VALUES (1,1,'2026-11-19','18:00','20:10',1,1,2,1);
 INSERT INTO "Funciones" VALUES (2,1,'2026-11-19','21:00','23:00',2,1,2,2);
 INSERT INTO "Funciones" VALUES (3,0,'2026-11-20','20:00','22:15',3,1,1,3);

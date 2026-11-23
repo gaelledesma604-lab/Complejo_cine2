@@ -1,12 +1,12 @@
 <?php
 /* ==========================================================
    instalar.php: crea la base de datos database/cinenova.db a partir de
-   los dos scripts SQL. Se ejecuta UNA vez, desde la terminal:
+   los scripts SQL. Se ejecuta UNA vez, desde la terminal:
 
        php database/instalar.php
 
-   Primero corre complejo_cines.sql (tablas y datos de prueba) y después
-   datos_cartelera.sql (las películas que antes estaban en peliculas.js).
+   Corre complejo_cines.sql (tablas y datos de prueba), después
+   datos_cartelera.sql (las películas) y por último datos_funciones.sql (horarios de la semana).
    Si la base ya existe no hace nada, para no borrar tus datos.
    ========================================================== */
 
@@ -27,7 +27,7 @@ try {
     $pdo = new PDO('sqlite:' . $destino);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    foreach (['complejo_cines.sql', 'datos_cartelera.sql'] as $archivo) {
+    foreach (['complejo_cines.sql', 'datos_cartelera.sql', 'datos_funciones.sql'] as $archivo) {
         $pdo->exec(file_get_contents(__DIR__ . '/' . $archivo)); // exec ejecuta todas las sentencias del archivo
         echo "Ejecutado: $archivo\n";
     }
