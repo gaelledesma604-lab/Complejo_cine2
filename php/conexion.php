@@ -6,8 +6,8 @@
    ========================================================== */
 
 // Ruta del archivo de la base. __DIR__ es la carpeta de ESTE archivo (php/),
-// por eso subimos un nivel (..) y entramos a db/.
-// El archivo .db no se sube a GitHub (está en .gitignore): se crea con db/instalar.php
+// por eso subimos un nivel (..) y entramos a database/.
+// El archivo .db no se sube a GitHub (está en .gitignore): se crea con database/instalar.php
 const RUTA_DB = __DIR__ . '/../database/cinenova.db';
 
 /* Devuelve la conexión (objeto PDO). La primera vez la crea y las siguientes
@@ -26,7 +26,7 @@ function conectar(): PDO
     }
     if (!is_file(RUTA_DB)) {
         http_response_code(500);
-        exit('Todavía no existe la base de datos. Créala ejecutando en la terminal: php db/instalar.php');
+        exit('Todavía no existe la base de datos. Créala ejecutando en la terminal: php database/instalar.php');
     }
 
     $pdo = new PDO('sqlite:' . RUTA_DB);
