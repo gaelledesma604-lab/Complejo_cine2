@@ -9,7 +9,7 @@ $pelicula = buscar_pelicula($id);
 
 if ($pelicula) {
     abrir_pagina('CineNova | ' . $pelicula['titulo']);
-    echo '<article id="ficha">' . crear_ficha($pelicula) . '</article>';
+    echo '<article id="ficha">' . crear_ficha($pelicula) . crear_horarios(listar_funciones($pelicula['id'])) . '</article>';
 } else {
     http_response_code(404); // el navegador y los buscadores saben que esa película no existe
     abrir_pagina('CineNova | Película no encontrada');

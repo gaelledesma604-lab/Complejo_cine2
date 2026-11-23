@@ -1,0 +1,81 @@
+/* ==========================================================
+   entradas.css: horarios en la ficha, mapa de butacas,
+   compra y "Mis entradas". Usa las variables de styles.css.
+   ========================================================== */
+
+/* ---------- Horarios en la ficha de la película ---------- */
+.horarios { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--borde); }
+.horarios h2, .mis-entradas h2 { font-family: var(--fuente-titulo); font-size: 1.5rem; margin-bottom: 1rem; }
+.dia-funciones { margin-bottom: 1.8rem; }
+.dia-funciones h3 { font-size: 1.05rem; color: var(--dorado); margin-bottom: .6rem; }
+.cine-funciones { color: var(--suave); font-size: .92rem; margin: .8rem 0 .4rem; }
+.lista-horarios { list-style: none; display: flex; flex-wrap: wrap; gap: .6rem; }
+.horario {
+  display: flex; flex-direction: column; align-items: center; min-width: 120px;
+  padding: .5rem .9rem; border: 1px solid var(--violeta); border-radius: 12px;
+  background: var(--superficie); font-weight: 600; transition: background .25s, border-color .25s;
+}
+.horario small { font-weight: 400; font-size: .75rem; color: var(--suave); }
+a.horario:hover { background: rgba(139, 92, 246, .2); border-color: var(--dorado); }
+.horario.agotada { opacity: .5; border-style: dashed; }
+
+/* ---------- Compra ---------- */
+.compra h1 { font-family: var(--fuente-titulo); font-size: clamp(1.7rem, 4vw, 2.4rem); margin-bottom: .3rem; }
+.compra form { margin-top: 1.5rem; }
+.campo-tipo { margin-bottom: 1.5rem; max-width: 380px; }
+.campo-tipo label { display: block; font-size: .9rem; color: var(--suave); margin-bottom: .25rem; }
+.campo-tipo select {
+  width: 100%; padding: .55rem .7rem; border-radius: 10px;
+  background: var(--superficie); border: 1px solid var(--borde); color: var(--texto);
+}
+.campo-tipo select:focus { border-color: var(--violeta); outline: none; }
+.campo-tipo small { display: block; margin-top: .3rem; color: var(--suave); }
+.compra .nota { margin-top: 1.5rem; font-size: .85rem; }
+
+/* Mapa de butacas */
+.pantalla {
+  width: min(520px, 90%); margin: 0 auto 1.5rem; padding: .35rem; text-align: center;
+  font-size: .75rem; letter-spacing: .4em; color: var(--suave);
+  border-top: 4px solid var(--violeta); border-radius: 50% 50% 0 0 / 14px 14px 0 0;
+  background: linear-gradient(to bottom, rgba(139, 92, 246, .25), transparent);
+}
+.sala-mapa { display: flex; flex-direction: column; align-items: center; gap: .4rem; overflow-x: auto; padding-bottom: .5rem; }
+.fila-butacas { display: flex; align-items: center; gap: .35rem; }
+.letra-fila { width: 1.4rem; text-align: center; color: var(--suave); font-size: .8rem; }
+.butaca { position: relative; display: inline-block; width: 2.1rem; height: 2.1rem; flex: none; }
+.butaca span {
+  display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;
+  border-radius: 8px 8px 4px 4px; font-size: .72rem; border: 1px solid var(--borde);
+}
+.butaca.libre { cursor: pointer; }
+.butaca.libre span { background: var(--superficie); border-color: var(--violeta); }
+.butaca.libre:hover span { background: rgba(139, 92, 246, .3); }
+.butaca.libre input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.butaca.libre input:checked + span { background: var(--dorado); border-color: var(--dorado); color: #1a1208; font-weight: 700; }
+.butaca.libre input:focus-visible + span { outline: 2px solid var(--dorado); outline-offset: 2px; }
+.butaca.ocupada { background: #2a2236; border: 1px solid var(--borde); border-radius: 8px 8px 4px 4px;
+  display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; color: #6f6580; }
+
+.leyenda { display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: center; margin: 1.2rem 0 .5rem; font-size: .85rem; color: var(--suave); }
+.muestra { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; margin-right: .3rem; vertical-align: middle; border: 1px solid var(--violeta); }
+.muestra.marcada { background: var(--dorado); border-color: var(--dorado); }
+.muestra.ocupada { background: #2a2236; border-color: var(--borde); }
+
+/* ---------- Mis entradas ---------- */
+.mis-entradas h1 { font-family: var(--fuente-titulo); font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 1rem; }
+.mis-entradas h2 { margin-top: 2rem; }
+.aviso { padding: .7rem 1rem; margin-bottom: 1rem; border: 1px solid var(--dorado); border-radius: 10px; background: rgba(226, 178, 79, .12); }
+.lista-entradas { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.entrada {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+  padding: 1rem 1.2rem; background: var(--superficie); border: 1px solid var(--borde); border-radius: 14px;
+}
+.entrada h3 { font-size: 1.1rem; margin-bottom: .3rem; }
+.entrada h3 a:hover { color: var(--dorado); }
+.entrada .meta { color: var(--suave); font-size: .9rem; }
+.etiqueta-cancelada { font-size: .72rem; padding: .1rem .5rem; margin-left: .3rem; border: 1px solid #ff7a8a; color: #ff7a8a; border-radius: 999px; vertical-align: middle; }
+
+@media (max-width: 600px) {
+  .butaca { width: 1.8rem; height: 1.8rem; }
+  .entrada { flex-direction: column; }
+}
