@@ -1,56 +1,41 @@
 -- ============================================================
 -- datos_cartelera.sql
--- Carga la cartelera: las películas del INCAA.
+-- Carga la cartelera: las películas que hoy se proyectan en el Complejo Cine Gaumont (INCAA).
 --
 -- Ejecutar DESPUÉS de complejo_cines.sql (el esquema debe tener la columna
 -- Peliculas.fecha_estreno). Se puede correr más de una vez sin duplicar nada.
 --
+-- fecha_estreno puede ser NULL (como en las películas sin fecha confirmada): en ese caso
+-- la película figura "En cartelera" desde el día en que se instala la base.
+--
 -- PARA AGREGAR MÁS PELÍCULAS: sumá una línea "UNION ALL SELECT 'Título', 'Sinopsis',
--- 'AAAA-MM-DD', duración, 'Clasificación'" al final del bloque que corresponda, y una
--- línea "UNION ALL SELECT 'Título', 'Género'" por cada género en el bloque de géneros.
+-- 'AAAA-MM-DD', duración, 'Clasificación'" al final del primer bloque, y una línea
+-- "UNION ALL SELECT 'Título', 'Género'" por cada género en el bloque de géneros.
 -- El título tiene que estar escrito igual en los dos lugares. Un apóstrofo dentro de
 -- un texto se escribe doble ('').
 -- ============================================================
 PRAGMA foreign_keys = ON;
 BEGIN TRANSACTION;
 
--- ---------- Películas del INCAA ----------
+-- ---------- Películas ----------
 INSERT INTO Peliculas (titulo, sinopsis, fecha_estreno, fecha_carga_pelicula, duracion, ID_Clasificacion)
 SELECT v.titulo, v.sinopsis, v.estreno, date('now'), v.duracion, c.ID_Clasificacion
 FROM (
-    SELECT 'Gigantes: Una aventura extraordinaria' AS titulo, 'Alfonso y sus amigos se embarcan en una misión para salvar su pueblo de unas misteriosas tormentas que amenazan con destruir sus hogares.' AS sinopsis, '2024-08-08' AS estreno, 87 AS duracion, 'ATP' AS clasif
-    UNION ALL SELECT 'Martín García', 'Un joven llega a la isla Martín García para trabajar como guardaparque y descubre los secretos históricos y naturales de este aislado territorio.', '2024-05-16', 77, '+13'
-    UNION ALL SELECT 'El Jockey', 'Remo Manfredini es un jockey legendario cuyo comportamiento autodestructivo empieza a eclipsar su talento y pone en riesgo su relación con Abril.', '2024-09-26', 96, '+16'
-    UNION ALL SELECT 'Maldita Eva', 'Un retrato íntimo sobre las pasiones, contradicciones y conflictos de una mujer decidida a romper con los mandatos impuestos por su entorno.', '2025-03-20', 85, '+16'
-    UNION ALL SELECT 'Los impactados', 'Tras sobrevivir a la caída de un rayo, Ada sufre secuelas físicas y psicológicas que la llevan a integrarse a un grupo de personas que atravesaron lo mismo.', '2024-04-11', 91, '+13'
-    UNION ALL SELECT 'Vladimir', 'La historia de un hombre atrapado entre los recuerdos de su pasado y las tensiones políticas y personales de su presente.', '2024-07-18', 82, '+13'
-    UNION ALL SELECT 'El tiempo de la tierra, historias originarias', 'Un recorrido documental por diversas comunidades indígenas de Argentina que luchan por preservar su lengua, su cultura y sus territorios.', '2024-06-13', 75, 'ATP'
-    UNION ALL SELECT 'Trabajadores de la imprenta', 'Documental que registra el día a día, la organización y la resistencia de los obreros gráficos frente a las crisis del sector.', '2024-05-02', 78, 'ATP'
-    UNION ALL SELECT 'Riders', 'Un grupo de jóvenes repartidores recorre las calles de la ciudad enfrentando la precarización laboral y buscando un futuro mejor.', '2024-08-22', 84, '+13'
-    UNION ALL SELECT 'Estepa', 'En la inmensidad desolada de la estepa patagónica, la llegada de un forastero altera la rutina silenciosa de una familia aislada.', '2024-09-05', 89, '+13'
-    UNION ALL SELECT 'Descansar en paz', 'Acorralado por las deudas, un hombre de familia decide aprovechar una circunstancia imprevisible para desaparecer y empezar de cero lejos de todos.', '2024-03-21', 105, '+13'
-    UNION ALL SELECT 'Un tal Mario', 'A partir de viejas cintas y recuerdos familiares, un director reconstruye la enigmática vida de su padre en la Argentina de los años setenta.', '2024-04-25', 90, 'ATP'
-    UNION ALL SELECT 'Entremedio', 'Dos personas coinciden en un espacio de tránsito y comparten una jornada que los obliga a replantearse el rumbo de sus vidas.', '2024-07-04', 76, '+13'
-    UNION ALL SELECT 'El pelado', 'Comedia dramática sobre un hombre común que, tras sufrir un cambio repentino en su apariencia y su rutina, intenta redefinir su identidad.', '2024-06-27', 83, '+13'
-    UNION ALL SELECT 'Continente', 'Un viaje sensorial y poético por distintos paisajes sudamericanos que explora la relación entre el territorio y quienes lo habitan.', '2024-08-15', 80, 'ATP'
-    UNION ALL SELECT 'Naufragios', 'En un paraje costero fuera de temporada, un grupo de personajes solitarios cruza sus caminos mientras intenta sanar heridas del pasado.', '2024-05-30', 94, '+13'
-    UNION ALL SELECT 'Cuando todo arde', 'En medio de una crisis social y ambiental, una mujer debe tomar decisiones límite para proteger a los suyos.', '2024-10-10', 88, '+16'
-    UNION ALL SELECT 'Cantando nuestras raíces', 'Un viaje musical por el interior del país al encuentro de cantores populares que mantienen vivas las tradiciones folklóricas.', '2024-09-12', 74, 'ATP'
-    UNION ALL SELECT 'VINCI / Cuando los cuerpos chocan', 'Una exploración sobre el movimiento, la física y la expresión corporal a través de un grupo de bailarines y artistas escénicos.', '2024-10-03', 81, 'ATP'
-    UNION ALL SELECT 'Después de Un buen día', 'Documental que investiga el fenómeno de culto alrededor de la película argentina Un buen día y el destino de sus protagonistas.', '2024-05-09', 86, '+13'
-    UNION ALL SELECT 'Bajo Naranja', 'Un joven estadounidense viaja a Buenos Aires buscando historias sobre la crisis argentina y termina involucrado con una banda de jóvenes artistas.', '2024-08-29', 95, '+16'
-    UNION ALL SELECT 'Reas', 'En la antigua cárcel de Caseros, mujeres y personas trans reconstruyen sus historias de encierro y libertad a través de escenas musicales y coreografías.', '2024-04-18', 82, '+16'
-    UNION ALL SELECT 'El rectángulo de los ángeles', 'Un thriller psicológico ambientado en un entorno cerrado donde las sospechas entre los protagonistas escalan sin control.', '2024-10-17', 92, '+16'
-    UNION ALL SELECT 'Tú me abrasas', 'Adaptación libre de los Diálogos con Leucó de Cesare Pavese que entrelaza el deseo, la muerte y el mito en un entorno natural.', '2024-09-19', 64, '+16'
-    UNION ALL SELECT 'El agrónomo', 'Un ingeniero agrónomo del interior comienza a cuestionar el modelo de producción agroquímica cuando la enfermedad golpea de cerca a su entorno.', '2024-04-04', 73, '+13'
-    UNION ALL SELECT 'Último recurso', 'Un periodista en decadencia ve en un caso policial sin resolver la última oportunidad para salvar su carrera.', '2023-11-16', 98, '+16'
-    UNION ALL SELECT 'Continuum, la playa', 'Observación contemplativa sobre el paso del tiempo, el mar y las pequeñas historias cotidianas de quienes habitan la costa.', '2023-10-12', 72, 'ATP'
-    UNION ALL SELECT 'Los tonos mayores', 'Tras un accidente, Ana descubre que la placa metálica que tiene en su brazo recibe un extraño mensaje en código morse.', '2023-09-07', 101, 'ATP'
-    UNION ALL SELECT 'El filo de las tijeras', 'Documental que retrata el oficio, la paciencia y las historias de vida detrás de una tradicional sastrería porteña.', '2023-08-24', 75, 'ATP'
-    UNION ALL SELECT 'La práctica', 'Gustavo y Vanessa son profesores de yoga que atraviesan una crisis matrimonial justo cuando una serie de lesiones complica su vida diaria en Chile.', '2023-11-02', 90, '+13'
-    UNION ALL SELECT 'Feliz Kitschmas', 'Una cena navideña familiar se sale completamente de control cuando salen a la luz viejos rencores y secretos absurdos.', '2023-12-14', 84, '+13'
-    UNION ALL SELECT 'Granizo', 'Un famoso meteorólogo de la televisión cae en desgracia tras fallar en el pronóstico de una terrible tormenta y debe refugiarse en su Córdoba natal.', '2022-03-30', 118, '+13'
-    UNION ALL SELECT 'Argentina, 1985', 'Inspirada en la historia real de los fiscales Julio Strassera y Luis Moreno Ocampo, quienes encabezaron el juicio a las juntas militares de la última dictadura.', '2022-09-29', 140, '+13'
+    SELECT '¿Querés ser mi hijo?' AS titulo, 'Lucía, de 42 años, atraviesa una mala racha: su pareja la engaña y pierde el trabajo. Para conseguir un puesto nuevo inventa que tiene un hijo adulto y le pide a su joven vecino Javier que finja serlo, a cambio de que pueda seguir haciendo sus fiestas.' AS sinopsis, '2026-10-22' AS estreno, 98 AS duracion, '+13' AS clasif
+    UNION ALL SELECT '...Que Dios perdona a todos', 'Arturo, un agente inmobiliario siciliano que solo se destaca en su trabajo y en su pasión por los dulces, conoce a Flora, una pastelera muy católica. Para no perderla finge tener fe, y en ese camino cuenta con la ayuda inesperada del Papa.', NULL, 113, '+13'
+    UNION ALL SELECT 'Carne', 'En un país que gira en torno a la carne, la desaparición del ganado provoca una crisis sin precedentes. Matías, un empresario ambicioso, propone una ley polémica para salvar la industria y, cuando es rechazada, lleva su plan a extremos cada vez más oscuros.', NULL, 115, '+16'
+    UNION ALL SELECT 'El baño del Papa', 'En 1988, la visita de Juan Pablo II a Melo, un pueblo pobre de la frontera uruguaya, hace soñar a los vecinos con ganar dinero. Beto tiene una idea propia: construir baños frente a su casa para alquilárselos a los miles de visitantes.', NULL, 95, '+13'
+    UNION ALL SELECT 'Los otros', 'Isla de Jersey, 1945. Grace vive en una casa aislada y en penumbra con sus dos hijos, que no pueden tolerar la luz del día, mientras espera a un marido que no regresa de la guerra. La llegada de tres nuevos sirvientes pondrá a prueba las estrictas reglas de la casa.', NULL, 104, '+13'
+    UNION ALL SELECT 'Lo dejamos acá', 'Un psicoanalista desencantado con la terapia tradicional empieza a intervenir en secreto en la vida de sus pacientes. El equilibrio se rompe cuando llega a su consultorio un escritor con un bloqueo creativo.', '2026-10-08', 98, '+13'
+    UNION ALL SELECT 'La casa', 'Tras ser despedido de una multinacional, Hugo Vaca acepta la oferta de un grupo de inversores que le comprará su casa a la mitad de su valor, con derecho a seguir viviendo en ella hasta su muerte. Lo que parecía una salida se complica más de lo previsto.', NULL, 95, '+13'
+    UNION ALL SELECT 'Annemarie', 'Una cineasta retrata el vínculo con su bisabuela, la fotógrafa Annemarie Heinrich, y explora qué significa retratar y revelar a otra persona.', NULL, 74, 'ATP'
+    UNION ALL SELECT 'Hospital Británico', 'Un hombre sale del hospital y emprende un viaje, quizás el último, entre paisajes místicos y versos del último libro del poeta Héctor Viel Temperley, junto a testimonios de quienes fueron marcados por su lectura.', NULL, 68, 'ATP'
+    UNION ALL SELECT '4 historias increíbles', 'Un hombre de casi 50 años busca el amor mientras sospecha que no sabe reconocerlo. A lo largo de cuatro historias se enreda en citas desastrosas, secretos y mentiras, siempre inclinado a elegir a la persona equivocada.', NULL, 81, '+13'
+    UNION ALL SELECT 'Recen por mí: la historia de Francisco', 'Documental sobre la vida del papa Francisco, desde su juventud en Argentina hasta su papel como líder espiritual mundial, con foco en su labor social y humanitaria, material de archivo y su propio testimonio.', NULL, 110, 'ATP'
+    UNION ALL SELECT 'Indómita luz', 'Antu, una niña de 9 años que nació ciega, recorre Argentina con sus padres en un viejo camión proyectando películas en pueblos olvidados, mientras descubre el mundo con una sensibilidad poco común.', '2026-11-19', 75, 'ATP'
+    UNION ALL SELECT 'Jeanne Dielman, 23, quai du Commerce, 1080 Bruxelles', 'Retrato minucioso de la rutina de una viuda y su hijo adolescente en Bruselas: tareas domésticas por la mañana y prostitución por la tarde, siguiendo un orden inmutable.', NULL, 193, '+16'
+    UNION ALL SELECT 'El llanto del perro', 'Gaby, atormentada por la ansiedad, se instala en la casa aislada de Ema para recibir una terapia alternativa que poco a poco se convierte en un inquietante ritual de obediencia.', NULL, 72, '+16'
+    UNION ALL SELECT 'Pepita la pistolera', 'En 1985, una madre mata a tiros a tres delincuentes que entran a su casa y se convierte en un fenómeno mediático. Margarita Di Tullio, la mujer detrás del mito, era además ladrona profesional y la madama más famosa de Mar del Plata.', '2026-09-03', 106, '+16'
 ) AS v
 JOIN Clasificaciones c ON c.nombre_clasificacion = v.clasif
 WHERE NOT EXISTS (SELECT 1 FROM Peliculas p WHERE p.titulo = v.titulo);
@@ -61,51 +46,31 @@ WHERE NOT EXISTS (SELECT 1 FROM Peliculas p WHERE p.titulo = v.titulo);
 INSERT OR IGNORE INTO Generos (nombre_genero, ID_Pelicula)
 SELECT v.genero, p.ID_Pelicula
 FROM (
-    SELECT 'Gigantes: Una aventura extraordinaria' AS titulo, 'Animación' AS genero
-    UNION ALL SELECT 'Gigantes: Una aventura extraordinaria', 'Aventura'
-    UNION ALL SELECT 'Martín García', 'Drama'
-    UNION ALL SELECT 'El Jockey', 'Drama'
-    UNION ALL SELECT 'El Jockey', 'Comedia'
-    UNION ALL SELECT 'Maldita Eva', 'Drama'
-    UNION ALL SELECT 'Los impactados', 'Drama'
-    UNION ALL SELECT 'Vladimir', 'Drama'
-    UNION ALL SELECT 'El tiempo de la tierra, historias originarias', 'Documental'
-    UNION ALL SELECT 'Trabajadores de la imprenta', 'Documental'
-    UNION ALL SELECT 'Riders', 'Drama'
-    UNION ALL SELECT 'Estepa', 'Drama'
-    UNION ALL SELECT 'Descansar en paz', 'Comedia'
-    UNION ALL SELECT 'Descansar en paz', 'Drama'
-    UNION ALL SELECT 'Un tal Mario', 'Documental'
-    UNION ALL SELECT 'Entremedio', 'Drama'
-    UNION ALL SELECT 'Entremedio', 'Romance'
-    UNION ALL SELECT 'El pelado', 'Comedia'
-    UNION ALL SELECT 'El pelado', 'Drama'
-    UNION ALL SELECT 'Continente', 'Documental'
-    UNION ALL SELECT 'Naufragios', 'Drama'
-    UNION ALL SELECT 'Cuando todo arde', 'Drama'
-    UNION ALL SELECT 'Cuando todo arde', 'Thriller'
-    UNION ALL SELECT 'Cantando nuestras raíces', 'Documental'
-    UNION ALL SELECT 'Cantando nuestras raíces', 'Musical'
-    UNION ALL SELECT 'VINCI / Cuando los cuerpos chocan', 'Documental'
-    UNION ALL SELECT 'Después de Un buen día', 'Documental'
-    UNION ALL SELECT 'Bajo Naranja', 'Drama'
-    UNION ALL SELECT 'Reas', 'Documental'
-    UNION ALL SELECT 'Reas', 'Musical'
-    UNION ALL SELECT 'El rectángulo de los ángeles', 'Thriller'
-    UNION ALL SELECT 'Tú me abrasas', 'Drama'
-    UNION ALL SELECT 'Tú me abrasas', 'Romance'
-    UNION ALL SELECT 'El agrónomo', 'Documental'
-    UNION ALL SELECT 'Último recurso', 'Thriller'
-    UNION ALL SELECT 'Último recurso', 'Drama'
-    UNION ALL SELECT 'Continuum, la playa', 'Documental'
-    UNION ALL SELECT 'Los tonos mayores', 'Drama'
-    UNION ALL SELECT 'El filo de las tijeras', 'Documental'
-    UNION ALL SELECT 'La práctica', 'Drama'
-    UNION ALL SELECT 'La práctica', 'Comedia'
-    UNION ALL SELECT 'Feliz Kitschmas', 'Comedia'
-    UNION ALL SELECT 'Granizo', 'Comedia'
-    UNION ALL SELECT 'Argentina, 1985', 'Drama'
-    UNION ALL SELECT 'Argentina, 1985', 'Histórico'
+    SELECT '¿Querés ser mi hijo?' AS titulo, 'Comedia' AS genero
+    UNION ALL SELECT '¿Querés ser mi hijo?', 'Romance'
+    UNION ALL SELECT '...Que Dios perdona a todos', 'Comedia'
+    UNION ALL SELECT '...Que Dios perdona a todos', 'Romance'
+    UNION ALL SELECT 'Carne', 'Drama'
+    UNION ALL SELECT 'Carne', 'Thriller'
+    UNION ALL SELECT 'El baño del Papa', 'Comedia'
+    UNION ALL SELECT 'El baño del Papa', 'Drama'
+    UNION ALL SELECT 'Los otros', 'Terror'
+    UNION ALL SELECT 'Los otros', 'Thriller'
+    UNION ALL SELECT 'Lo dejamos acá', 'Comedia'
+    UNION ALL SELECT 'La casa', 'Drama'
+    UNION ALL SELECT 'La casa', 'Thriller'
+    UNION ALL SELECT 'Annemarie', 'Documental'
+    UNION ALL SELECT 'Hospital Británico', 'Documental'
+    UNION ALL SELECT '4 historias increíbles', 'Comedia'
+    UNION ALL SELECT '4 historias increíbles', 'Romance'
+    UNION ALL SELECT 'Recen por mí: la historia de Francisco', 'Documental'
+    UNION ALL SELECT 'Recen por mí: la historia de Francisco', 'Biográfico'
+    UNION ALL SELECT 'Indómita luz', 'Documental'
+    UNION ALL SELECT 'Jeanne Dielman, 23, quai du Commerce, 1080 Bruxelles', 'Drama'
+    UNION ALL SELECT 'El llanto del perro', 'Thriller'
+    UNION ALL SELECT 'El llanto del perro', 'Drama'
+    UNION ALL SELECT 'Pepita la pistolera', 'Drama'
+    UNION ALL SELECT 'Pepita la pistolera', 'Thriller'
 ) AS v
 JOIN Peliculas p ON p.titulo = v.titulo;
 
