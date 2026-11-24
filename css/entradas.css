@@ -79,3 +79,23 @@ a.horario:hover { background: rgba(139, 92, 246, .2); border-color: var(--dorado
   .butaca { width: 1.8rem; height: 1.8rem; }
   .entrada { flex-direction: column; }
 }
+
+/* ---------- Administración ---------- */
+.admin h1 { font-family: var(--fuente-titulo); font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 1rem; }
+.admin h2 { font-family: var(--fuente-titulo); font-size: 1.3rem; margin-bottom: 1rem; }
+.admin > h2 { margin-top: 2.5rem; }
+.admin-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.tarjeta-admin { padding: 1.4rem; background: var(--superficie); border: 1px solid var(--borde); border-radius: 14px; }
+.campo-admin { margin-bottom: .9rem; }
+.campo-admin label { display: block; font-size: .9rem; color: var(--suave); margin-bottom: .25rem; }
+.campo-admin input, .campo-admin select, .campo-admin textarea {
+  width: 100%; padding: .55rem .7rem; border-radius: 10px;
+  background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: inherit;
+}
+.campo-admin input:focus, .campo-admin select:focus, .campo-admin textarea:focus { border-color: var(--violeta); outline: none; }
+.campo-admin textarea { resize: vertical; }
+.tabla-admin { overflow-x: auto; }
+.tabla-admin table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.tabla-admin th, .tabla-admin td { padding: .55rem .7rem; text-align: left; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+.tabla-admin th { color: var(--suave); font-weight: 500; }
+.tabla-admin td form { display: inline-flex; }
