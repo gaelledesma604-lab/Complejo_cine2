@@ -50,7 +50,7 @@ function incaa_descargar(string $url): string
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT        => 30,
-            CURLOPT_USERAGENT      => 'CineNova/1.0',
+            CURLOPT_USERAGENT      => 'CineRubi/1.0',
         ]);
         $datos = curl_exec($curl);
         $codigo = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -62,7 +62,7 @@ function incaa_descargar(string $url): string
         return $datos;
     }
 
-    $contexto = stream_context_create(['http' => ['timeout' => 30, 'user_agent' => 'CineNova/1.0']]);
+    $contexto = stream_context_create(['http' => ['timeout' => 30, 'user_agent' => 'CineRubi/1.0']]);
     $datos = @file_get_contents($url, false, $contexto);
     if ($datos === false) {
         throw new RuntimeException('No se pudo descargar ' . $url . '.');

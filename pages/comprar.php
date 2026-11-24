@@ -9,7 +9,7 @@ $funcion = buscar_funcion($id);
 
 if (!$funcion) {
     http_response_code(404);
-    abrir_pagina('CineNova | Función no encontrada');
+    abrir_pagina('Cine Rubí | Función no encontrada');
     echo '<article><p>No encontramos esa función.</p>'
        . '<a class="volver" href="' . e(BASE . 'index.php') . '">← Volver a la cartelera</a></article>';
     cerrar_pagina();
@@ -33,6 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $marcadas = is_array($_POST['butacas'] ?? null) ? array_values(array_filter($_POST['butacas'], 'is_string')) : [];
 }
 
-abrir_pagina('CineNova | Comprar entradas');
+abrir_pagina('Cine Rubí | Comprar entradas');
 echo formulario_compra($funcion, $error, $marcadas, $tipoElegido);
 cerrar_pagina();

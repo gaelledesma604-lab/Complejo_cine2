@@ -25,7 +25,7 @@ function exigir_admin(): void
     }
     if (!es_admin()) {
         http_response_code(403);
-        abrir_pagina('CineNova | Acceso denegado');
+        abrir_pagina('Cine Rubí | Acceso denegado');
         echo '<article><p>Esta página es solo para administradores.</p>'
            . '<a class="volver" href="' . e(BASE . 'index.php') . '">← Volver a la cartelera</a></article>';
         cerrar_pagina();
@@ -275,33 +275,6 @@ function admin_cancelar_funcion(int $id): string
     exit;
 }
 
-/* ---------- Cuentas ---------- */
-
-/* Da o quita el rol de administrador a otra cuenta. Nadie puede cambiarse el rol a sí mismo:
-   así siempre queda al menos un administrador (el que está haciendo el cambio). */
-function admin_cambiar_rol(int $idCuenta, string $rol): string
-{
-    if (!in_array($rol, ['admin', 'usuario'], true)) return 'Rol no válido.';
-
-    $yo = usuario_actual();
-    if ((int)$yo['id'] === $idCuenta) return 'No puedes cambiar tu propio rol.';
-
-    $pdo = conectar();
-    $consulta = $pdo->prepare('SELECT nombre_usuario FROM Usuarios WHERE ID_Usuario = :id');
-    $consulta->execute([':id' => $idCuenta]);
-    $nombre = $consulta->fetchColumn();
-    if ($nombre === false) return 'No encontramos esa cuenta.';
-
-    $pdo->prepare('UPDATE Usuarios SET ID_Rol = (SELECT ID_Rol FROM Roles WHERE nombre_rol = :rol) WHERE ID_Usuario = :id')
-        ->execute([':rol' => $rol, ':id' => $idCuenta]);
-
-    $_SESSION['aviso'] = $rol === 'admin'
-        ? $nombre . ' ahora es administrador.'
-        : $nombre . ' ya no es administrador.';
-    header('Location: admin.php');
-    exit;
-}
-
 /* ---------- HTML ---------- */
 
 /* Convierte filas de la base en <option>. $texto es una función que arma el texto de cada fila. */
@@ -470,31 +443,6 @@ function crear_panel_admin(array $errores, string $aviso): string
           . '<tbody>' . $filas . '</tbody></table></div>'
         : '<p class="texto-filtro">No hay funciones próximas.</p>';
 
-    // Tabla de cuentas: el botón da o quita el rol de administrador (no se muestra en la propia cuenta)
-    $yoId = (int)usuario_actual()['id'];
-    $filasCuentas = '';
-    foreach ($pdo->query(
-        'SELECT u.ID_Usuario AS id, u.nombre_usuario AS nombre, u.correo_usuario AS correo, r.nombre_rol AS rol
-         FROM Usuarios u JOIN Roles r ON r.ID_Rol = u.ID_Rol
-         ORDER BY (r.nombre_rol = \'admin\') DESC, u.nombre_usuario LIMIT 100'
-    )->fetchAll() as $cuenta) {
-        $esAdmin = $cuenta['rol'] === 'admin';
-        if ((int)$cuenta['id'] === $yoId) {
-            $celda = '<span class="texto-filtro">Tu cuenta</span>';
-        } else {
-            $celda = '<form method="post" action="' . $accion . '">'
-                   . '<input type="hidden" name="csrf" value="' . $csrf . '">'
-                   . '<input type="hidden" name="accion" value="rol">'
-                   . '<input type="hidden" name="id" value="' . (int)$cuenta['id'] . '">'
-                   . '<input type="hidden" name="rol" value="' . ($esAdmin ? 'usuario' : 'admin') . '">'
-                   . '<button type="submit" class="btn-sec">' . ($esAdmin ? 'Quitar admin' : 'Hacer admin') . '</button></form>';
-        }
-        $filasCuentas .= '<tr><td>' . e($cuenta['nombre']) . '</td><td>' . e($cuenta['correo']) . '</td>'
-                       . '<td>' . ($esAdmin ? 'Administrador' : 'Usuario') . '</td><td>' . $celda . '</td></tr>';
-    }
-    $tablaCuentas = '<div class="tabla-admin"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th></th></tr></thead>'
-                  . '<tbody>' . $filasCuentas . '</tbody></table></div>';
-
     return <<<HTML
         <section class="admin">
           <h1>Administración</h1>
@@ -547,8 +495,6 @@ function crear_panel_admin(array $errores, string $aviso): string
           <h2>Próximas funciones</h2>
           {$tabla}
 
-          <h2>Cuentas</h2>
-          {$tablaCuentas}
         </section>
         HTML;
 }

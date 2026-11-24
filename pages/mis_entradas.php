@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancelar'])) {
     exit;
 }
 
-abrir_pagina('CineNova | Mis entradas');
+abrir_pagina('Cine Rubí | Mis entradas');
 echo '<section class="mis-entradas"><h1>Mis entradas</h1>';
 if ($aviso !== '') {
     echo '<p class="aviso" role="status">' . e($aviso) . '</p>';

@@ -16,6 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = procesar_login($correo, (string)($_POST['password'] ?? '')); // si sale bien, redirige y termina aquí
 }
 
-abrir_pagina('CineNova | Iniciar sesión');
+abrir_pagina('Cine Rubí | Iniciar sesión');
 echo formulario_login($error, $correo);
 cerrar_pagina();

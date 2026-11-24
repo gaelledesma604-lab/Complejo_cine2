@@ -1,4 +1,4 @@
-# CineNova (hay que cambiarlo)
+# Cine Rubí
 
 ## Requisitos
 
@@ -21,3 +21,8 @@
    ```
 
 3. Abrir <http://localhost:8000> en el navegador.
+
+Santino Zerda, Gael Ledesma y Ara Prociuk.
+4to 8va - Ciclo Superior de Computación.
+Escuela Técnica N29 D.E. 6 Reconquista de Buenos Aires
+Base de Datos - Profesor: Leonardo Cancino

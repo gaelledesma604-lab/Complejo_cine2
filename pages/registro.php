@@ -22,6 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 }
 
-abrir_pagina('CineNova | Crear cuenta');
+abrir_pagina('Cine Rubí | Crear cuenta');
 echo formulario_registro($error, $nombre, $correo);
 cerrar_pagina();

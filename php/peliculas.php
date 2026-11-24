@@ -1,6 +1,9 @@
 <?php
 /* ==========================================================
    peliculas.php: reemplaza a js/peliculas.js.
+   Ya no hay una lista PELICULAS escrita a mano: los datos se
+   leen de la base de datos. Aquí también están las funciones
+   que filtran las películas y dibujan las tarjetas y la ficha.
    ========================================================== */
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
@@ -10,7 +13,7 @@ const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
 // así que se juntan en un solo texto separado por "|" (ej.: "Acción|Aventura").
 // fecha_efectiva = la fecha de estreno o, si no se cargó, la fecha en que se cargó la película.
 const SQL_PELICULAS = "
-    SELECT p.ID_Pelicula AS id, p.titulo, p.sinopsis, p.duracion,
+    SELECT p.ID_Pelicula AS id, p.titulo, p.sinopsis, p.duracion, p.codigo_incaa,
            c.nombre_clasificacion AS clasificacion,
            p.fecha_estreno,
            COALESCE(p.fecha_estreno, p.fecha_carga_pelicula) AS fecha_efectiva,
@@ -101,30 +104,64 @@ function filtrar_peliculas(string $estado, string $genero, string $texto): array
 function colores_poster(string $titulo): array
 {
     $numero = abs(crc32($titulo));
-    $tono1 = $numero % 360;
-    $tono2 = ($tono1 + 40 + intdiv($numero, 360) % 80) % 360;
-    return ["hsl($tono1, 65%, 35%)", "hsl($tono2, 55%, 14%)"];
+    $tono1 = (345 + $numero % 45) % 360;              // entre rojo carmesí y rojo anaranjado
+    $tono2 = (345 + intdiv($numero, 45) % 45) % 360;
+    return ["hsl($tono1, 72%, 33%)", "hsl($tono2, 60%, 11%)"];
 }
 
-/* Si pones un archivo assets/img/ID.jpg (por ejemplo 4.jpg para la película 4),
-   se muestra en lugar del degradado. Devuelve el nombre del archivo o null. */
-function imagen_poster(int $id): ?string
+/* "¿Queres Ser Mi Hijo?" -> "queres-ser-mi-hijo": el nombre de archivo que se espera para su portada. */
+function slug_titulo(string $titulo): string
 {
-    foreach (['jpg', 'png', 'webp'] as $extension) {
-        if (is_file(__DIR__ . "/../assets/img/$id.$extension")) {
-            return "$id.$extension";
+    $sinTildes = strtr($titulo, [
+        'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u', 'Ü' => 'u', 'Ñ' => 'n',
+        'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n',
+    ]);
+    return trim(strtolower((string)preg_replace('/[^A-Za-z0-9]+/', '-', $sinTildes)), '-');
+}
+
+/* Portadas que hay en assets/portadas: ['nombre-en-minusculas' => 'Nombre.JPG']. La carpeta se lee una sola
+   vez por página, no una vez por película. Se aceptan jpg, jpeg, png y webp. */
+function portadas_disponibles(): array
+{
+    static $mapa = null;
+    if ($mapa !== null) {
+        return $mapa;
+    }
+    $mapa = [];
+    $carpeta = __DIR__ . '/../assets/portadas';
+    if (is_dir($carpeta)) {
+        foreach (scandir($carpeta) as $archivo) {
+            $partes = pathinfo($archivo);
+            $extension = strtolower($partes['extension'] ?? '');
+            if (in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $mapa[strtolower($partes['filename'])] = $archivo;
+            }
+        }
+    }
+    return $mapa;
+}
+
+/* Busca la portada de una película en assets/portadas. El archivo puede llamarse como el código del INCAA
+   (64260249.jpg), como el título sin tildes ni símbolos (el-gato-con-sombrero.jpg) o como el número de la
+   película en la base (12.jpg); se usa el primero que exista. Devuelve el nombre del archivo o null. */
+function imagen_poster(array $p): ?string
+{
+    $mapa = portadas_disponibles();
+    foreach ([(string)($p['codigo_incaa'] ?? ''), slug_titulo($p['titulo']), (string)$p['id']] as $nombre) {
+        if ($nombre !== '' && isset($mapa[strtolower($nombre)])) {
+            return $mapa[strtolower($nombre)];
         }
     }
     return null;
 }
 
-/* Devuelve el HTML del póster: imagen real si existe, o degradado con el título. */
+/* Devuelve el HTML del póster: la portada si existe, o un degradado con el título. */
 function crear_poster(array $p): string
 {
     $titulo = e($p['titulo']);
-    $imagen = imagen_poster($p['id']);
+    $imagen = imagen_poster($p);
     if ($imagen !== null) {
-        return '<div class="poster"><img src="' . e(BASE . 'assets/img/' . $imagen) . '" alt="Póster de ' . $titulo . '"></div>';
+        return '<div class="poster"><img src="' . e(BASE . 'assets/portadas/' . rawurlencode($imagen)) . '" alt="Póster de ' . $titulo . '"></div>';
     }
     [$color1, $color2] = colores_poster($p['titulo']);
     return '<div class="poster" role="img" aria-label="Póster de ' . $titulo . '"'

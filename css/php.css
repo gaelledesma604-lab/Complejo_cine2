@@ -9,7 +9,7 @@
    esos estilos usando el atributo [open]. */
 summary.btn-menu { list-style: none; cursor: pointer; }
 summary.btn-menu::-webkit-details-marker { display: none; } /* oculta el triangulito de Safari */
-.item-menu[open] .btn-menu { border-color: var(--violeta); }
+.item-menu[open] .btn-menu { border-color: var(--rubi-oscuro); }
 .item-menu[open] .btn-menu::after { transform: rotate(225deg); }
 .item-menu[open] .desplegable { opacity: 1; visibility: visible; transform: none; }
 /* Las opciones ahora son enlaces <a> en lugar de botones */
@@ -17,7 +17,7 @@ a.opcion { text-decoration: none; color: inherit; }
 
 /* ---------- Formularios de usuario (ahora son páginas, no ventanas) ---------- */
 main > .modal { margin: 1rem auto 0; animation: aparecer .25s ease; }
-.cambiar a { color: var(--dorado); text-decoration: underline; }
+.cambiar a { color: var(--rubi-claro); text-decoration: underline; }
 .fila-botones a { display: inline-block; text-align: center; }
 .acciones-usuario form { display: inline-flex; }
 

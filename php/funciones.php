@@ -227,7 +227,7 @@ function procesar_compra(array $f, int $idUsuario): string
         $pdo->commit();
     } catch (PDOException $error) {
         if ($pdo->inTransaction()) $pdo->rollBack();
-        error_log('CineNova, compra fallida: ' . $error->getMessage()); // con php -S se ve en la terminal
+        error_log('Cine Rubí, compra fallida: ' . $error->getMessage()); // con php -S se ve en la terminal
         if (strpos($error->getMessage(), 'ID_Usuario') !== false) {
             return 'La base de datos es de una versión anterior. Bórrala (el archivo cinenova.db) y ejecuta de nuevo: php database/instalar.php';
         }
@@ -415,7 +415,7 @@ function formulario_compra(array $f, string $error, array $marcadas, int $tipoEl
             <p class="error" role="alert">{$error}</p>
             <button type="submit" class="btn-prim">Confirmar compra</button>
           </form>
-          <p class="texto-filtro nota">CineNova es un proyecto de ejemplo: no se cobra ninguna entrada real.</p>
+          <p class="texto-filtro nota">Cine Rubí es un proyecto de ejemplo: no se cobra ninguna entrada real.</p>
         </section>
         HTML;
 }

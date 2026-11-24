@@ -95,7 +95,7 @@ function cerrar_pagina(): void
     echo <<<HTML
 
           </main>
-          <footer class="pie">CineNova es un proyecto de ejemplo: no vende entradas reales.</footer>
+          <footer class="pie">Cine Rubí es un proyecto de ejemplo: no vende entradas reales.</footer>
         </body>
         </html>
 

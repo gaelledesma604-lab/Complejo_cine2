@@ -6,13 +6,14 @@
 /* Variables: colores y medidas que se reutilizan en todo el sitio.
    Si cambias un valor aquí, cambia en toda la página. */
 :root {
-  --fondo: #0f0b16;       /* fondo general: negro con un toque violeta */
-  --superficie: #191322;  /* tarjetas, menús y formularios */
-  --borde: #2e2640;
-  --texto: #f2edf8;
-  --suave: #a89fba;       /* texto secundario */
-  --dorado: #e2b24f;      /* color principal de destaque */
-  --violeta: #8b5cf6;     /* color secundario (brillos) */
+  --fondo: #0b0708;         /* fondo general: negro con un toque rojizo */
+  --superficie: #170d0f;    /* tarjetas, menús y formularios */
+  --borde: #3a1a20;
+  --texto: #f6eeee;
+  --suave: #b99da1;         /* texto secundario */
+  --rubi: #e11d48;          /* rojo rubí: botones y rellenos (el texto blanco encima se lee bien) */
+  --rubi-claro: #ff4d6a;    /* rojo claro: textos, enlaces y detalles sobre fondo negro */
+  --rubi-oscuro: #b4203d;   /* rojo oscuro: bordes y brillos */
   --fuente: "Outfit", system-ui, sans-serif;
   --fuente-titulo: "Playfair Display", Georgia, serif;
 }
@@ -34,21 +35,21 @@ a { color: inherit; text-decoration: none; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 /* Contorno visible al navegar con teclado */
-:focus-visible { outline: 2px solid var(--dorado); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--rubi-claro); outline-offset: 2px; }
 
 /* ---------- Botones ---------- */
 .btn-prim, .btn-sec {
-  padding: .5rem 1.1rem; border-radius: 999px; border: 1px solid var(--dorado);
+  padding: .5rem 1.1rem; border-radius: 999px; border: 1px solid var(--rubi-claro);
   transition: background .25s, color .25s;
 }
-.btn-prim { background: var(--dorado); color: #1a1208; font-weight: 600; }
-.btn-prim:hover { background: #f0c565; }
-.btn-sec { background: transparent; color: var(--dorado); }
-.btn-sec:hover { background: rgba(226, 178, 79, .15); }
+.btn-prim { background: var(--rubi); color: #fff; font-weight: 600; }
+.btn-prim:hover { background: #c4153b; }
+.btn-sec { background: transparent; color: var(--rubi-claro); }
+.btn-sec:hover { background: rgba(225, 29, 72, .15); }
 
 /* ---------- Cabecera ---------- */
 #cabecera {
-  background: #130e1b; border-bottom: 1px solid var(--borde);
+  background: #0e0809; border-bottom: 1px solid var(--borde);
   position: sticky; top: 0; z-index: 20; /* queda fija al hacer scroll */
 }
 /* Fila superior: logo a la izquierda, botones de usuario a la derecha */
@@ -56,7 +57,7 @@ button { cursor: pointer; }
   display: flex; justify-content: space-between; align-items: center;
   width: min(1200px, 100% - 2rem); margin-inline: auto; padding: .75rem 0;
 }
-.logo { font-family: var(--fuente-titulo); font-size: 1.7rem; font-weight: 700; color: var(--dorado); }
+.logo { font-family: var(--fuente-titulo); font-size: 1.7rem; font-weight: 700; color: var(--rubi-claro); }
 .acciones-usuario { display: flex; align-items: center; gap: .6rem; }
 .saludo { color: var(--suave); }
 
@@ -71,12 +72,12 @@ button { cursor: pointer; }
   background: var(--superficie); border: 1px solid var(--borde); border-radius: 999px;
   padding: .45rem 1rem; transition: border-color .25s;
 }
-.btn-menu:hover, .item-menu.abierto .btn-menu { border-color: var(--violeta); }
+.btn-menu:hover, .item-menu.abierto .btn-menu { border-color: var(--rubi-oscuro); }
 /* Flechita que gira cuando el menú está abierto */
 .btn-menu::after { content: ""; width: 7px; height: 7px; border: solid var(--suave); border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-2px); transition: transform .25s; }
 .item-menu.abierto .btn-menu::after { transform: rotate(225deg); }
 /* Texto con la opción elegida (ciudad, cine o género) */
-.etq { color: var(--dorado); font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 11rem; }
+.etq { color: var(--rubi-claro); font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 11rem; }
 
 /* MENÚ DESPLEGABLE: está oculto (opacity 0 + visibility hidden) y al agregarle
    la clase "abierto" al contenedor se muestra con una transición suave. */
@@ -92,8 +93,8 @@ button { cursor: pointer; }
   display: block; width: 100%; text-align: left; background: none; border: 0;
   padding: .55rem .8rem; border-radius: 8px; transition: background .2s;
 }
-.opcion:hover { background: rgba(139, 92, 246, .2); }
-.opcion.activa { color: var(--dorado); }
+.opcion:hover { background: rgba(180, 32, 61, .2); }
+.opcion.activa { color: var(--rubi-claro); }
 .opcion small { display: block; color: var(--suave); font-size: .8rem; }
 
 /* Buscador: ocupa el espacio restante a la derecha */
@@ -102,7 +103,7 @@ button { cursor: pointer; }
   width: 240px; background: var(--superficie); border: 1px solid var(--borde);
   border-radius: 999px; padding: .45rem 1rem;
 }
-.buscador input:focus { border-color: var(--violeta); outline: none; }
+.buscador input:focus { border-color: var(--rubi-oscuro); outline: none; }
 
 /* ---------- Formularios (ventanas de inicio de sesión y registro) ---------- */
 .modal {
@@ -110,7 +111,7 @@ button { cursor: pointer; }
   background: var(--superficie); border: 1px solid var(--borde); border-radius: 16px;
 }
 .modal[open] { animation: aparecer .25s ease; } /* respuesta a la acción de abrir */
-.modal::backdrop { background: rgba(5, 3, 10, .78); } /* fondo oscurecido */
+.modal::backdrop { background: rgba(8, 2, 3, .8); } /* fondo oscurecido */
 .modal h2 { font-family: var(--fuente-titulo); margin-bottom: 1rem; }
 .campo { margin-bottom: .9rem; }
 .campo label { display: block; font-size: .9rem; color: var(--suave); margin-bottom: .25rem; }
@@ -118,11 +119,11 @@ button { cursor: pointer; }
   width: 100%; background: var(--fondo); border: 1px solid var(--borde);
   border-radius: 8px; padding: .6rem .8rem;
 }
-.campo input:focus { border-color: var(--violeta); outline: none; }
+.campo input:focus { border-color: var(--rubi-oscuro); outline: none; }
 .error { color: #ff7a8a; min-height: 1.3rem; font-size: .9rem; margin-bottom: .5rem; }
 .fila-botones { display: flex; gap: .6rem; justify-content: flex-end; }
 .cambiar { margin-top: 1rem; font-size: .9rem; color: var(--suave); }
-.cambiar button { background: none; border: 0; color: var(--dorado); text-decoration: underline; }
+.cambiar button { background: none; border: 0; color: var(--rubi-claro); text-decoration: underline; }
 @keyframes aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Pie de página ---------- */

@@ -1,5 +1,5 @@
 <?php
-/* PÁGINA PRINCIPAL de CineNova (reemplaza a index.html + la parte de inicio de main.js).
+/* PÁGINA PRINCIPAL de Cine Rubí (reemplaza a index.html + la parte de inicio de main.js).
    PHP lee los filtros de la dirección, consulta la base y escribe las tarjetas ya armadas. */
 require __DIR__ . '/php/main.php';
 iniciar('', 'inicio');
@@ -13,7 +13,7 @@ $partes = [];
 if ($filtros['genero'] !== '') $partes[] = 'Género: ' . $filtros['genero'];
 if ($filtros['texto'] !== '') $partes[] = 'Búsqueda: "' . $filtros['texto'] . '"';
 
-abrir_pagina('CineNova | Cartelera');
+abrir_pagina('Cine Rubí | Cartelera');
 ?>
     <!-- SECCIÓN "EN CARTELERA" -->
     <section id="cartelera" aria-labelledby="titulo-cartelera">

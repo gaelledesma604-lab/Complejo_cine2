@@ -179,7 +179,7 @@ function construir_cabecera(): string
 
     return <<<HTML
         <div class="barra-usuario">
-          <a class="logo" href="{$inicio}">CineNova</a>
+          <a class="logo" href="{$inicio}">Cine Rubí</a>
           <div class="acciones-usuario" id="acciones-usuario">{$usuario}</div>
         </div>
         <nav class="barra-nav" aria-label="Navegación principal">
