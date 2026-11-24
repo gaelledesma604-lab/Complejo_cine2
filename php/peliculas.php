@@ -66,7 +66,7 @@ function formatear_fecha(string $iso): string
 function preparar_pelicula(array $fila): array
 {
     $fila['id'] = (int)$fila['id'];
-    $fila['duracion'] = (int)$fila['duracion'];
+    $fila['duracion'] = $fila['duracion'] === null ? null : (int)$fila['duracion']; // puede faltar (películas importadas del INCAA)
     $fila['generos'] = $fila['generos'] === null ? [] : explode('|', $fila['generos']);
     $fila['estado'] = $fila['fecha_efectiva'] <= date('Y-m-d') ? 'cartelera' : 'estreno';
     return $fila;
@@ -142,7 +142,7 @@ function crear_tarjeta(array $p): string
     $titulo = e($p['titulo']);
     $poster = crear_poster($p);
     $generos = e(implode(', ', $p['generos']));
-    $duracion = e(formatear_duracion($p['duracion']));
+    $duracion = $p['duracion'] === null ? '' : '<p class="meta">' . e(formatear_duracion($p['duracion'])) . '</p>';
     $estreno = $p['estado'] === 'estreno'
         ? '<p class="meta estreno-fecha">Estreno: ' . e(formatear_fecha($p['fecha_efectiva'])) . '</p>'
         : '';
@@ -153,7 +153,7 @@ function crear_tarjeta(array $p): string
           <div class="info">
             <h3>{$titulo}</h3>
             <p class="meta">{$generos}</p>
-            <p class="meta">{$duracion}</p>
+            {$duracion}
             {$estreno}
             <a class="ver-mas" href="{$enlace}">Ver más información</a>
           </div>
@@ -171,13 +171,14 @@ function crear_ficha(array $p): string
     foreach ($p['generos'] as $genero) {
         $chips .= '<span class="chip">' . e($genero) . '</span>';
     }
-    $duracion = e(formatear_duracion($p['duracion']));
+    // Si la duración no está cargada, esa fila no se muestra
+    $duracion = $p['duracion'] === null ? '' : '<div><dt>Duración</dt><dd>' . e(formatear_duracion($p['duracion'])) . '</dd></div>';
     $clasificacion = e($p['clasificacion']);
     // Si la película no tiene fecha de estreno cargada, esa fila simplemente no se muestra
     $estreno = $p['fecha_estreno']
         ? '<div><dt>Fecha de estreno</dt><dd>' . e(formatear_fecha($p['fecha_estreno'])) . '</dd></div>'
         : '';
-    $sinopsis = e((string)$p['sinopsis']);
+    $sinopsis = trim((string)$p['sinopsis']) !== '' ? e((string)$p['sinopsis']) : 'Sin sinopsis disponible.';
 
     return <<<HTML
         <a class="volver" href="{$volver}">← Volver a la cartelera</a>
@@ -187,7 +188,7 @@ function crear_ficha(array $p): string
             <h1>{$titulo}</h1>
             <div class="chips">{$chips}</div>
             <dl class="datos">
-              <div><dt>Duración</dt><dd>{$duracion}</dd></div>
+              {$duracion}
               <div><dt>Clasificación</dt><dd>{$clasificacion}</dd></div>
               {$estreno}
             </dl>

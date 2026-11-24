@@ -89,10 +89,11 @@ CREATE TABLE IF NOT EXISTS "Peliculas" (
 	"ID_Pelicula"	INTEGER,
 	"titulo"	TEXT NOT NULL,
 	"sinopsis"	TEXT,
-	"duracion"	INTEGER NOT NULL CHECK("duracion" > 0),
+	"duracion"	INTEGER CHECK("duracion" IS NULL OR "duracion" > 0),
 	"ID_Clasificacion"	INTEGER NOT NULL,
 	"fecha_estreno"	TEXT CHECK("fecha_estreno" IS NULL OR date("fecha_estreno") IS "fecha_estreno"),
 	"fecha_carga_pelicula"	TEXT NOT NULL DEFAULT (date('now')) CHECK(date("fecha_carga_pelicula") IS "fecha_carga_pelicula"),
+	"codigo_incaa"	TEXT UNIQUE,
 	PRIMARY KEY("ID_Pelicula" AUTOINCREMENT),
 	FOREIGN KEY("ID_Clasificacion") REFERENCES "Clasificaciones"("ID_Clasificacion")
 );
@@ -167,6 +168,7 @@ INSERT INTO "Clasificaciones" VALUES (1,0,'ATP','Apta para todo publico');
 INSERT INTO "Clasificaciones" VALUES (2,13,'+13','Mayores de 13 anios');
 INSERT INTO "Clasificaciones" VALUES (3,16,'+16','Mayores de 16 anios');
 INSERT INTO "Clasificaciones" VALUES (4,18,'+18','Mayores de 18 anios');
+INSERT INTO "Clasificaciones" VALUES (5,0,'Sin calificar','Calificacion no informada');
 INSERT INTO "Clasificaciones_tipo_entrada" VALUES (1,1,1);
 INSERT INTO "Clasificaciones_tipo_entrada" VALUES (2,1,2);
 INSERT INTO "Clasificaciones_tipo_entrada" VALUES (3,1,3);
@@ -177,6 +179,8 @@ INSERT INTO "Clasificaciones_tipo_entrada" VALUES (7,3,1);
 INSERT INTO "Clasificaciones_tipo_entrada" VALUES (8,3,3);
 INSERT INTO "Clasificaciones_tipo_entrada" VALUES (9,4,1);
 INSERT INTO "Clasificaciones_tipo_entrada" VALUES (10,4,3);
+INSERT INTO "Clasificaciones_tipo_entrada" VALUES (11,5,1);
+INSERT INTO "Clasificaciones_tipo_entrada" VALUES (12,5,3);
 INSERT INTO "Dia_semana" VALUES (1,'Lunes');
 INSERT INTO "Dia_semana" VALUES (2,'Martes');
 INSERT INTO "Dia_semana" VALUES (3,'Miercoles');
@@ -184,28 +188,8 @@ INSERT INTO "Dia_semana" VALUES (4,'Jueves');
 INSERT INTO "Dia_semana" VALUES (5,'Viernes');
 INSERT INTO "Dia_semana" VALUES (6,'Sabado');
 INSERT INTO "Dia_semana" VALUES (7,'Domingo');
-INSERT INTO "Entradas" VALUES (1,'2026-11-19',6000,1,'A',1,1,1,NULL);
-INSERT INTO "Entradas" VALUES (2,'2026-11-19',4500,1,'A',2,1,2,NULL);
-INSERT INTO "Entradas" VALUES (3,'2026-11-19',4000,1,'B',5,2,3,NULL);
-INSERT INTO "Entradas" VALUES (4,'2026-11-21',7500,1,'C',3,4,1,NULL);
-INSERT INTO "Funciones" VALUES (1,1,'2026-11-19','18:00','20:10',1,1,2,1);
-INSERT INTO "Funciones" VALUES (2,1,'2026-11-19','21:00','23:00',2,1,2,2);
-INSERT INTO "Funciones" VALUES (3,0,'2026-11-20','20:00','22:15',3,1,1,3);
-INSERT INTO "Funciones" VALUES (4,1,'2026-11-21','16:00','18:10',4,1,3,1);
-INSERT INTO "Generos" VALUES (1,'Aventura',1);
-INSERT INTO "Generos" VALUES (2,'Familiar',1);
-INSERT INTO "Generos" VALUES (3,'Thriller',2);
-INSERT INTO "Generos" VALUES (4,'Drama',3);
 INSERT INTO "Idioma" VALUES (1,'Espanol','es');
 INSERT INTO "Idioma" VALUES (2,'Ingles','en');
-INSERT INTO "Pelicula_idioma" VALUES (1,1,1);
-INSERT INTO "Pelicula_idioma" VALUES (2,2,1);
-INSERT INTO "Pelicula_idioma" VALUES (3,3,1);
-INSERT INTO "Pelicula_idioma" VALUES (4,3,2);
-INSERT INTO "Peliculas" ("ID_Pelicula","titulo","sinopsis","duracion","ID_Clasificacion","fecha_estreno") VALUES (1,'Aventura en el Sur','Una familia recorre la Patagonia.',130,1,'2026-11-19');
-INSERT INTO "Peliculas" ("ID_Pelicula","titulo","sinopsis","duracion","ID_Clasificacion","fecha_estreno") VALUES (2,'La Noche Larga','Un thriller policial en Buenos Aires.',120,3,'2026-11-19');
-INSERT INTO "Peliculas" ("ID_Pelicula","titulo","sinopsis","duracion","ID_Clasificacion","fecha_estreno") VALUES (3,'Historias Ocultas','Drama para adultos sobre secretos.',135,4,'2026-11-20');
-INSERT INTO "Programaciones" VALUES (1,'2026-11-19','2026-11-25','2026-11-16');
 INSERT INTO "Salas" VALUES (1,1,1,120,1);
 INSERT INTO "Salas" VALUES (2,1,2,80,1);
 INSERT INTO "Salas" VALUES (3,1,1,200,2);

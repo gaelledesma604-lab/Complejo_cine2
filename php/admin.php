@@ -5,6 +5,9 @@
    y cancelar funciones que todavía no vendieron entradas.
    ========================================================== */
 
+// Minutos que se suponen para una película sin duración cargada (solo para calcular la hora de fin de una función)
+const DURACION_ESTIMADA = 120;
+
 function es_admin(): bool
 {
     $usuario = usuario_actual();
@@ -135,7 +138,8 @@ function admin_agregar_funcion(): string
 
     // La base guarda solo la hora (HH:MM), así que la función debe terminar el mismo día
     $inicio = DateTime::createFromFormat('Y-m-d H:i', $fecha . ' ' . $hora);
-    $fin = (clone $inicio)->modify('+' . (int)$duracion . ' minutes');
+    $minutos = $duracion === null ? DURACION_ESTIMADA : (int)$duracion;
+    $fin = (clone $inicio)->modify('+' . $minutos . ' minutes');
     if ($fin->format('Y-m-d') !== $fecha) return 'La función terminaría después de medianoche. Elige un horario más temprano.';
     $horaFin = $fin->format('H:i');
 
@@ -256,7 +260,7 @@ function crear_panel_admin(array $errores, string $aviso): string
     $csrf = e(token_csrf());
     $accion = e(BASE . 'pages/admin.php');
 
-    $clasificaciones = $pdo->query('SELECT ID_Clasificacion AS id, nombre_clasificacion AS nombre FROM Clasificaciones ORDER BY edad_minima')->fetchAll();
+    $clasificaciones = $pdo->query('SELECT ID_Clasificacion AS id, nombre_clasificacion AS nombre FROM Clasificaciones ORDER BY edad_minima, ID_Clasificacion')->fetchAll();
     $peliculas = $pdo->query('SELECT ID_Pelicula AS id, titulo FROM Peliculas ORDER BY titulo')->fetchAll();
     $salas = $pdo->query(
         'SELECT s.ID_Sala AS id, c.nombre_cine AS cine, s.numero FROM Salas s

@@ -5,7 +5,9 @@
 --
 -- Ejecutar DESPUÉS de complejo_cines.sql y datos_cartelera.sql.
 -- Reparto: cada sala tiene 3 turnos por día (15:00, 18:00 y 21:00) y las películas
--- que ya están en cartelera rotan entre salas y turnos, cambiando cada día.
+-- que ya están en cartelera rotan entre salas y turnos. Cada día se avanza tantos lugares como
+-- turnos hay en total, así que en la semana pasan casi todas las películas.
+-- Si una película no tiene duración cargada, se usa 120 minutos solo para calcular la hora de fin.
 -- Todas son funciones "Normal" (estado 1 = a la venta).
 -- ============================================================
 PRAGMA foreign_keys = ON;
@@ -36,13 +38,16 @@ cartelera AS (
 ),
 total AS (
     SELECT COUNT(*) AS k FROM cartelera
+),
+turnos_por_dia AS (
+    SELECT COUNT(*) * 3 AS n FROM salas_n
 )
 INSERT OR IGNORE INTO Funciones
     (estado, fecha, hora_inicio, hora_fin, ID_Sala, ID_Programacion, ID_Tipo_funcion, ID_Pelicula)
 SELECT 1,
        date('now', 'localtime', '+' || d.n || ' days'),
        t.hora,
-       strftime('%H:%M', t.hora, '+' || c.duracion || ' minutes'),
+       strftime('%H:%M', t.hora, '+' || COALESCE(c.duracion, 120) || ' minutes'),
        sn.ID_Sala,
        (SELECT MAX(ID_Programacion) FROM Programaciones WHERE fecha_inicio = date('now', 'localtime')),
        (SELECT ID_Tipo_funcion FROM Tipo_funcion WHERE nombre_TF = 'Normal'),
@@ -51,7 +56,8 @@ FROM dias d
 CROSS JOIN turnos t
 CROSS JOIN salas_n sn
 CROSS JOIN total
-JOIN cartelera c ON c.i = (d.n * 3 * (SELECT COUNT(*) FROM salas_n) + sn.s * 3 + t.t) % total.k
+CROSS JOIN turnos_por_dia
+JOIN cartelera c ON c.i = (sn.s * 3 + t.t + d.n * turnos_por_dia.n) % total.k
 WHERE total.k > 0;
 
 COMMIT;

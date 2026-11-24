@@ -1,2 +1,0 @@
-# Apache: impide descargar la base y los scripts SQL desde el navegador
-Require all denied
