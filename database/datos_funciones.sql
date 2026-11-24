@@ -51,7 +51,7 @@ FROM dias d
 CROSS JOIN turnos t
 CROSS JOIN salas_n sn
 CROSS JOIN total
-JOIN cartelera c ON c.i = (sn.s * 3 + t.t + d.n) % total.k
+JOIN cartelera c ON c.i = (d.n * 3 * (SELECT COUNT(*) FROM salas_n) + sn.s * 3 + t.t) % total.k
 WHERE total.k > 0;
 
 COMMIT;
