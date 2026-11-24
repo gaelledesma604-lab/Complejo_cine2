@@ -25,6 +25,28 @@ require_once __DIR__ . '/peliculas.php';
 require_once __DIR__ . '/usuarios.php';
 require_once __DIR__ . '/navegacion.php';
 require_once __DIR__ . '/funciones.php';
+require_once __DIR__ . '/admin.php';
+
+/* La sesión guarda el id de la cuenta, pero la base puede haber cambiado desde entonces (se recreó,
+   se desactivó la cuenta, se cambió el rol). Se comprueba en cada página: si la cuenta ya no existe o
+   está desactivada se cierra la sesión, y si existe se refresca el rol (así un cambio de rol se nota al instante). */
+function validar_sesion(): void
+{
+    if (!isset($_SESSION['usuario'])) return;
+
+    $consulta = conectar()->prepare(
+        'SELECT r.nombre_rol FROM Usuarios u JOIN Roles r ON r.ID_Rol = u.ID_Rol
+         WHERE u.ID_Usuario = :id AND u.estado_usuario = 1'
+    );
+    $consulta->execute([':id' => (int)($_SESSION['usuario']['id'] ?? 0)]);
+    $rol = $consulta->fetchColumn();
+
+    if ($rol === false) {
+        unset($_SESSION['usuario']);
+    } else {
+        $_SESSION['usuario']['rol'] = $rol;
+    }
+}
 
 /* Cada página lo llama una vez al principio.
    $base   = ruta hacia la raíz del proyecto ("" en index.php, "../" en pages/)
@@ -33,6 +55,7 @@ function iniciar(string $base, string $pagina): void
 {
     define('BASE', $base);
     define('PAGINA', $pagina);
+    validar_sesion();
     procesar_seleccion(); // guarda ?cine= / ?ubicacion= en la sesión (puede redirigir)
 }
 

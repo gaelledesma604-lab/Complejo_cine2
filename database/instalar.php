@@ -7,6 +7,7 @@
 
    Corre complejo_cines.sql (tablas y datos de prueba), después
    datos_cartelera.sql (las películas) y por último datos_funciones.sql (horarios de la semana).
+   También crea la cuenta admin@cinenova.local con una contraseña aleatoria que muestra al terminar.
    Si la base ya existe no hace nada, para no borrar tus datos.
    ========================================================== */
 
@@ -31,7 +32,19 @@ try {
         $pdo->exec(file_get_contents(__DIR__ . '/' . $archivo)); // exec ejecuta todas las sentencias del archivo
         echo "Ejecutado: $archivo\n";
     }
-    echo "Listo: se creó database/cinenova.db\n";
+
+    // Cuenta de administración inicial. La contraseña es aleatoria y se muestra UNA sola vez aquí:
+    // así no hay una contraseña fija escrita en el repositorio.
+    $password = bin2hex(random_bytes(6));
+    $pdo->prepare(
+        "INSERT INTO Usuarios (nombre_usuario, correo_usuario, password_hash, ID_Rol)
+         VALUES ('admin', 'admin@cinenova.local', :hash, (SELECT ID_Rol FROM Roles WHERE nombre_rol = 'admin'))"
+    )->execute([':hash' => password_hash($password, PASSWORD_DEFAULT)]);
+
+    echo "Listo: se creó database/cinenova.db\n\n";
+    echo "Cuenta de administrador (guarda esta contraseña, no se vuelve a mostrar):\n";
+    echo "  correo:     admin@cinenova.local\n";
+    echo "  contraseña: $password\n";
 } catch (Throwable $error) {
     $pdo = null;             // cierra la conexión antes de borrar el archivo a medio crear
     @unlink($destino);
