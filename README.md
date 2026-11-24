@@ -23,4 +23,4 @@
 3. Abrir <http://localhost:8000> en el navegador.
 
 
-4. Aquí el link para la pagina web: proyecto-cine.alwaysdata.net/ 
+4. Aquí el link para la pagina web: https://proyecto-cine.alwaysdata.net/ 
