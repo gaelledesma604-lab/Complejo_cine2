@@ -15,7 +15,8 @@
    - El informe no trae género, duración, sinopsis ni clasificación, y no se inventan:
      las películas quedan con duración vacía y clasificación "Sin calificar".
    - Se puede ejecutar varias veces: cada película se reconoce por su código del INCAA, así que las
-     que ya existen se actualizan y no se duplican. Las que dejan de aparecer en el informe NO se borran.
+     que ya existen no se duplican ni se pisan (solo se completa la fecha de estreno si faltaba), así que lo que
+     edites en el panel de administración se conserva. Las que dejan de aparecer en el informe NO se borran.
    - instalar.php usa este mismo código cuando existe database/informe_semanal.csv.
    ========================================================== */
 
@@ -200,7 +201,7 @@ function incaa_importar(PDO $pdo, string $utf8): array
     }
 
     $actualizar = $pdo->prepare(
-        'UPDATE Peliculas SET titulo = :titulo, fecha_estreno = COALESCE(:estreno, fecha_estreno) WHERE ID_Pelicula = :id'
+        'UPDATE Peliculas SET fecha_estreno = COALESCE(fecha_estreno, :estreno) WHERE ID_Pelicula = :id'
     );
     $insertar = $pdo->prepare(
         'INSERT INTO Peliculas (titulo, duracion, ID_Clasificacion, fecha_estreno, codigo_incaa)
@@ -233,7 +234,7 @@ function incaa_importar(PDO $pdo, string $utf8): array
             $idExistente = $buscar->fetchColumn();
 
             if ($idExistente !== false) {
-                $actualizar->execute([':titulo' => $titulo, ':estreno' => $estreno, ':id' => (int)$idExistente]);
+                $actualizar->execute([':estreno' => $estreno, ':id' => (int)$idExistente]);
                 $resultado['actualizadas']++;
             } else {
                 $insertar->execute([
@@ -254,7 +255,7 @@ function incaa_importar(PDO $pdo, string $utf8): array
 /* Imprime en la terminal lo que hizo la importación. */
 function incaa_mostrar(array $r): void
 {
-    echo 'Películas nuevas: ' . $r['nuevas'] . ' | actualizadas: ' . $r['actualizadas'] . ' | omitidas: ' . count($r['omitidas']) . "\n";
+    echo 'Películas nuevas: ' . $r['nuevas'] . ' | ya existían: ' . $r['actualizadas'] . ' | omitidas: ' . count($r['omitidas']) . "\n";
     foreach ($r['omitidas'] as $motivo) {
         echo '  omitida - ' . $motivo . "\n";
     }

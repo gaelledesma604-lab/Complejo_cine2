@@ -60,6 +60,7 @@ function pintar_sesion(): string
     if ($usuario) {
         $salir = e(BASE . 'pages/logout.php');
         return '<span class="saludo">Hola, ' . e($usuario['nombre']) . '</span>'
+             . (es_admin() ? '<a class="btn-sec" href="' . e(BASE . 'pages/admin.php') . '">Administrar</a>' : '')
              . '<a class="btn-sec" href="' . e(BASE . 'pages/mis_entradas.php') . '">Mis entradas</a>'
              . '<form method="post" action="' . $salir . '"><button type="submit" class="btn-sec">Cerrar sesión</button></form>';
     }

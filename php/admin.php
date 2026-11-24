@@ -42,18 +42,25 @@ function fecha_iso_valida(string $texto): bool
 
 /* ---------- Películas ---------- */
 
-/* Agrega una película con sus géneros. Devuelve el mensaje de error; si todo sale bien, redirige. */
-function admin_agregar_pelicula(): string
+/* Lee y valida los datos de película del formulario (el alta y la edición comparten las reglas).
+   Devuelve el mensaje de error (texto) o los datos limpios (arreglo). La duración es obligatoria al
+   agregar; al editar puede quedar vacía, porque las películas importadas del INCAA no la traen. */
+function admin_leer_pelicula(bool $duracionObligatoria)
 {
     $titulo = trim((string)($_POST['titulo'] ?? ''));
     $sinopsis = trim((string)($_POST['sinopsis'] ?? ''));
-    $duracion = (int)($_POST['duracion'] ?? 0);
+    $textoDuracion = trim((string)($_POST['duracion'] ?? ''));
+    $duracion = $textoDuracion === '' ? null : (int)$textoDuracion;
     $clasificacion = (int)($_POST['clasificacion'] ?? 0);
     $estreno = trim((string)($_POST['estreno'] ?? ''));
 
     if ($titulo === '' || largo_texto($titulo) > 120) return 'El título es obligatorio (máximo 120 caracteres).';
     if (largo_texto($sinopsis) > 1000) return 'La sinopsis puede tener hasta 1000 caracteres.';
-    if ($duracion < 1 || $duracion > 600) return 'La duración debe estar entre 1 y 600 minutos.';
+    if ($duracion === null) {
+        if ($duracionObligatoria) return 'La duración es obligatoria.';
+    } elseif ($duracion < 1 || $duracion > 600) {
+        return 'La duración debe estar entre 1 y 600 minutos.';
+    }
     if ($estreno !== '' && !fecha_iso_valida($estreno)) return 'La fecha de estreno no es válida.';
 
     // Géneros: texto separado por comas, sin repetidos (aunque cambien las mayúsculas), hasta 5
@@ -66,14 +73,37 @@ function admin_agregar_pelicula(): string
     }
     if (count($generos) > 5) return 'Puedes cargar hasta 5 géneros por película.';
 
-    $pdo = conectar();
-
-    $existe = $pdo->prepare('SELECT 1 FROM Clasificaciones WHERE ID_Clasificacion = :id');
+    $existe = conectar()->prepare('SELECT 1 FROM Clasificaciones WHERE ID_Clasificacion = :id');
     $existe->execute([':id' => $clasificacion]);
     if (!$existe->fetchColumn()) return 'Elige una clasificación válida.';
 
+    return [
+        'titulo'        => $titulo,
+        'sinopsis'      => $sinopsis === '' ? null : $sinopsis,
+        'duracion'      => $duracion,
+        'clasificacion' => $clasificacion,
+        'estreno'       => $estreno === '' ? null : $estreno,
+        'generos'       => array_values($generos),
+    ];
+}
+
+function admin_guardar_generos(PDO $pdo, int $idPelicula, array $generos): void
+{
+    $insertar = $pdo->prepare('INSERT INTO Generos (nombre_genero, ID_Pelicula) VALUES (:genero, :pelicula)');
+    foreach ($generos as $genero) {
+        $insertar->execute([':genero' => $genero, ':pelicula' => $idPelicula]);
+    }
+}
+
+/* Agrega una película con sus géneros. Devuelve el mensaje de error; si todo sale bien, redirige. */
+function admin_agregar_pelicula(): string
+{
+    $datos = admin_leer_pelicula(true);
+    if (is_string($datos)) return $datos;
+
+    $pdo = conectar();
     $repetida = $pdo->prepare('SELECT 1 FROM Peliculas WHERE lower(titulo) = lower(:titulo)');
-    $repetida->execute([':titulo' => $titulo]);
+    $repetida->execute([':titulo' => $datos['titulo']]);
     if ($repetida->fetchColumn()) return 'Ya existe una película con ese título.';
 
     try {
@@ -82,25 +112,62 @@ function admin_agregar_pelicula(): string
             'INSERT INTO Peliculas (titulo, sinopsis, duracion, ID_Clasificacion, fecha_estreno)
              VALUES (:titulo, :sinopsis, :duracion, :clasificacion, :estreno)'
         )->execute([
-            ':titulo'        => $titulo,
-            ':sinopsis'      => $sinopsis === '' ? null : $sinopsis,
-            ':duracion'      => $duracion,
-            ':clasificacion' => $clasificacion,
-            ':estreno'       => $estreno === '' ? null : $estreno,
+            ':titulo'        => $datos['titulo'],
+            ':sinopsis'      => $datos['sinopsis'],
+            ':duracion'      => $datos['duracion'],
+            ':clasificacion' => $datos['clasificacion'],
+            ':estreno'       => $datos['estreno'],
         ]);
-        $idPelicula = (int)$pdo->lastInsertId();
-
-        $insertarGenero = $pdo->prepare('INSERT INTO Generos (nombre_genero, ID_Pelicula) VALUES (:genero, :pelicula)');
-        foreach ($generos as $genero) {
-            $insertarGenero->execute([':genero' => $genero, ':pelicula' => $idPelicula]);
-        }
+        admin_guardar_generos($pdo, (int)$pdo->lastInsertId(), $datos['generos']);
         $pdo->commit();
     } catch (PDOException $error) {
         if ($pdo->inTransaction()) $pdo->rollBack();
         return 'No se pudo guardar la película. Inténtalo de nuevo.';
     }
 
-    $_SESSION['aviso'] = 'Película "' . $titulo . '" agregada.';
+    $_SESSION['aviso'] = 'Película "' . $datos['titulo'] . '" agregada.';
+    header('Location: admin.php');
+    exit;
+}
+
+/* Edita una película: actualiza sus datos y reemplaza la lista de géneros por la enviada. */
+function admin_editar_pelicula(int $id): string
+{
+    $pdo = conectar();
+    $existe = $pdo->prepare('SELECT 1 FROM Peliculas WHERE ID_Pelicula = :id');
+    $existe->execute([':id' => $id]);
+    if (!$existe->fetchColumn()) return 'No encontramos esa película.';
+
+    $datos = admin_leer_pelicula(false);
+    if (is_string($datos)) return $datos;
+
+    $repetida = $pdo->prepare('SELECT 1 FROM Peliculas WHERE lower(titulo) = lower(:titulo) AND ID_Pelicula <> :id');
+    $repetida->execute([':titulo' => $datos['titulo'], ':id' => $id]);
+    if ($repetida->fetchColumn()) return 'Ya existe otra película con ese título.';
+
+    try {
+        $pdo->beginTransaction();
+        $pdo->prepare(
+            'UPDATE Peliculas SET titulo = :titulo, sinopsis = :sinopsis, duracion = :duracion,
+                    ID_Clasificacion = :clasificacion, fecha_estreno = :estreno
+             WHERE ID_Pelicula = :id'
+        )->execute([
+            ':titulo'        => $datos['titulo'],
+            ':sinopsis'      => $datos['sinopsis'],
+            ':duracion'      => $datos['duracion'],
+            ':clasificacion' => $datos['clasificacion'],
+            ':estreno'       => $datos['estreno'],
+            ':id'            => $id,
+        ]);
+        $pdo->prepare('DELETE FROM Generos WHERE ID_Pelicula = :id')->execute([':id' => $id]);
+        admin_guardar_generos($pdo, $id, $datos['generos']);
+        $pdo->commit();
+    } catch (PDOException $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        return 'No se pudo guardar la película. Inténtalo de nuevo.';
+    }
+
+    $_SESSION['aviso'] = 'Película "' . $datos['titulo'] . '" actualizada.';
     header('Location: admin.php');
     exit;
 }
@@ -254,6 +321,92 @@ function valor_post(string $campo): string
     return e(trim((string)($_POST[$campo] ?? '')));
 }
 
+/* Sección "Películas" del panel: formulario de edición (si se pidió con ?editar=ID) y lista con un botón
+   "Editar" en cada película. */
+function crear_seccion_peliculas(string $error): string
+{
+    $pdo = conectar();
+    $csrf = e(token_csrf());
+    $idEditar = (int)($_GET['editar'] ?? 0);
+
+    $editor = '';
+    if ($idEditar > 0) {
+        $consulta = $pdo->prepare(
+            "SELECT p.ID_Pelicula AS id, p.titulo, p.sinopsis, p.duracion, p.ID_Clasificacion AS clasificacion,
+                    p.fecha_estreno AS estreno,
+                    (SELECT GROUP_CONCAT(g.nombre_genero, ', ') FROM Generos g WHERE g.ID_Pelicula = p.ID_Pelicula) AS generos
+             FROM Peliculas p WHERE p.ID_Pelicula = :id"
+        );
+        $consulta->execute([':id' => $idEditar]);
+        $fila = $consulta->fetch();
+
+        if ($fila) {
+            // Si se envió el formulario y hubo un error se muestra lo escrito; si no, lo que hay guardado
+            $enviado = ($_POST['accion'] ?? '') === 'editar_pelicula';
+            $valor = fn(string $campo) => e($enviado ? trim((string)($_POST[$campo] ?? '')) : (string)($fila[$campo] ?? ''));
+
+            $clasificaciones = $pdo->query('SELECT ID_Clasificacion AS id, nombre_clasificacion AS nombre FROM Clasificaciones ORDER BY edad_minima, ID_Clasificacion')->fetchAll();
+            $elegida = $enviado ? (int)($_POST['clasificacion'] ?? 0) : (int)$fila['clasificacion'];
+            $opciones = opciones_admin($clasificaciones, 'id', fn($f) => $f['nombre'], $elegida);
+
+            $accion = e(BASE . 'pages/admin.php?editar=' . (int)$fila['id'] . '#editar');
+            $cancelar = e(BASE . 'pages/admin.php');
+            $id = (int)$fila['id'];
+            $titulo = $valor('titulo');
+            $sinopsis = $valor('sinopsis');
+            $duracion = $valor('duracion');
+            $estreno = $valor('estreno');
+            $generos = $valor('generos');
+            $textoError = e($error);
+
+            $editor = <<<HTML
+                <form class="tarjeta-admin editor-pelicula" method="post" action="{$accion}">
+                  <h3>Editar película</h3>
+                  <input type="hidden" name="csrf" value="{$csrf}">
+                  <input type="hidden" name="accion" value="editar_pelicula">
+                  <input type="hidden" name="id" value="{$id}">
+                  <div class="campo-admin"><label for="e-titulo">Título</label>
+                    <input id="e-titulo" name="titulo" type="text" maxlength="120" value="{$titulo}" required></div>
+                  <div class="campo-admin"><label for="e-sinopsis">Sinopsis</label>
+                    <textarea id="e-sinopsis" name="sinopsis" rows="4" maxlength="1000">{$sinopsis}</textarea></div>
+                  <div class="campo-admin"><label for="e-duracion">Duración (minutos, opcional)</label>
+                    <input id="e-duracion" name="duracion" type="number" min="1" max="600" value="{$duracion}"></div>
+                  <div class="campo-admin"><label for="e-clasificacion">Clasificación</label>
+                    <select id="e-clasificacion" name="clasificacion">{$opciones}</select></div>
+                  <div class="campo-admin"><label for="e-estreno">Fecha de estreno (opcional)</label>
+                    <input id="e-estreno" name="estreno" type="date" value="{$estreno}"></div>
+                  <div class="campo-admin"><label for="e-generos">Géneros, separados por comas (máx. 5)</label>
+                    <input id="e-generos" name="generos" type="text" placeholder="Acción, Drama" value="{$generos}"></div>
+                  <p class="error" role="alert">{$textoError}</p>
+                  <button type="submit" class="btn-prim">Guardar cambios</button>
+                  <a class="btn-sec" href="{$cancelar}">Cancelar</a>
+                </form>
+                HTML;
+        }
+    }
+
+    $filas = '';
+    $consulta = $pdo->query(
+        "SELECT p.ID_Pelicula AS id, p.titulo, c.nombre_clasificacion AS clasificacion, p.duracion,
+                (SELECT GROUP_CONCAT(g.nombre_genero, ', ') FROM Generos g WHERE g.ID_Pelicula = p.ID_Pelicula) AS generos
+         FROM Peliculas p JOIN Clasificaciones c ON c.ID_Clasificacion = p.ID_Clasificacion
+         ORDER BY p.titulo LIMIT 200"
+    );
+    foreach ($consulta->fetchAll() as $f) {
+        $enlace = e(BASE . 'pages/admin.php?editar=' . (int)$f['id'] . '#editar');
+        $filas .= '<tr><td>' . e($f['titulo']) . '</td><td>' . e($f['clasificacion']) . '</td>'
+                . '<td>' . ($f['duracion'] === null ? '—' : (int)$f['duracion'] . ' min') . '</td>'
+                . '<td>' . ($f['generos'] === null ? '—' : e($f['generos'])) . '</td>'
+                . '<td><a class="btn-sec" href="' . $enlace . '">Editar</a></td></tr>';
+    }
+    $tabla = $filas !== ''
+        ? '<div class="tabla-admin"><table><thead><tr><th>Título</th><th>Clasificación</th><th>Duración</th><th>Géneros</th><th></th></tr></thead>'
+          . '<tbody>' . $filas . '</tbody></table></div>'
+        : '<p class="texto-filtro">Todavía no hay películas.</p>';
+
+    return '<h2 id="editar">Películas</h2>' . $editor . $tabla;
+}
+
 function crear_panel_admin(array $errores, string $aviso): string
 {
     $pdo = conectar();
@@ -285,6 +438,7 @@ function crear_panel_admin(array $errores, string $aviso): string
     $fecha = valor_post('fecha');
     $hora = valor_post('hora');
     $hoy = date('Y-m-d');
+    $seccionPeliculas = crear_seccion_peliculas($errores['editar'] ?? '');
 
     // Tabla de las próximas funciones
     $consulta = $pdo->prepare(
@@ -387,6 +541,8 @@ function crear_panel_admin(array $errores, string $aviso): string
               <button type="submit" class="btn-prim">Programar función</button>
             </form>
           </div>
+
+          {$seccionPeliculas}
 
           <h2>Próximas funciones</h2>
           {$tabla}
