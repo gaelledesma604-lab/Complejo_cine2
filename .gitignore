@@ -3,3 +3,6 @@ database/cinenova.db
 database/*.db-journal
 database/*.db-wal
 database/*.db-shm
+
+# Configuración propia de cada instalación (ruta de la base, etc.)
+config.local.php

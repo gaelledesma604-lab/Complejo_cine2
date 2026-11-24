@@ -194,10 +194,10 @@ function incaa_importar(PDO $pdo, string $utf8): array
         $idClasificacion = $consulta->fetchColumn();
         $buscar = $pdo->prepare('SELECT ID_Pelicula FROM Peliculas WHERE codigo_incaa = :codigo');
     } catch (PDOException $error) {
-        throw new RuntimeException('La base es de una versión anterior. Bórrala (database/cinenova.db) y ejecuta de nuevo: php database/instalar.php');
+        throw new RuntimeException('La base es de una versión anterior. Bórrala (el archivo cinenova.db) y ejecuta de nuevo: php database/instalar.php');
     }
     if ($idClasificacion === false) {
-        throw new RuntimeException('Falta la clasificación "' . CLASIFICACION_SIN_DATO . '" en la base. Bórrala (database/cinenova.db) y ejecuta de nuevo: php database/instalar.php');
+        throw new RuntimeException('Falta la clasificación "' . CLASIFICACION_SIN_DATO . '" en la base. Bórrala (el archivo cinenova.db) y ejecuta de nuevo: php database/instalar.php');
     }
 
     $actualizar = $pdo->prepare(

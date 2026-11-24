@@ -1,6 +1,7 @@
 <?php
 /* ==========================================================
-   instalar.php: crea la base de datos database/cinenova.db a partir de
+   instalar.php: crea la base de datos (por defecto database/cinenova.db, ver ruta_base_datos() en
+   php/conexion.php) a partir de
    los scripts SQL. Se ejecuta UNA vez, desde la terminal:
 
        php database/instalar.php
@@ -15,10 +16,15 @@ if (PHP_SAPI !== 'cli') {
     header('Content-Type: text/plain; charset=utf-8');
 }
 
-$destino = __DIR__ . '/cinenova.db';
+require_once __DIR__ . '/../php/conexion.php'; // da la ruta de la base (puede venir de config.local.php)
+$destino = RUTA_DB;
 
 if (file_exists($destino)) {
-    exit("La base ya existe (database/cinenova.db). Si quieres crearla de cero, borra ese archivo y vuelve a ejecutar este script.\n");
+    exit("La base ya existe ($destino). Si quieres crearla de cero, borra ese archivo y vuelve a ejecutar este script.\n");
+}
+$carpeta = dirname($destino);
+if (!is_dir($carpeta) && !mkdir($carpeta, 0700, true)) {
+    exit("No se pudo crear la carpeta $carpeta\n");
 }
 if (!extension_loaded('pdo_sqlite')) {
     exit("Falta la extensión pdo_sqlite de PHP. Actívala en php.ini (línea extension=pdo_sqlite).\n");
@@ -60,7 +66,7 @@ try {
          VALUES ('admin', 'admin@cinenova.local', :hash, (SELECT ID_Rol FROM Roles WHERE nombre_rol = 'admin'))"
     )->execute([':hash' => password_hash($password, PASSWORD_DEFAULT)]);
 
-    echo "Listo: se creó database/cinenova.db\n\n";
+    echo "Listo: se creó $destino\n\n";
     echo "Cuenta de administrador (guarda esta contraseña, no se vuelve a mostrar):\n";
     echo "  correo:     admin@cinenova.local\n";
     echo "  contraseña: $password\n";

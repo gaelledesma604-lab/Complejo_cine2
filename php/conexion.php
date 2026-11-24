@@ -5,10 +5,29 @@
    a la función conectar(); nadie más abre la base por su cuenta.
    ========================================================== */
 
-// Ruta del archivo de la base. __DIR__ es la carpeta de ESTE archivo (php/),
-// por eso subimos un nivel (..) y entramos a database/.
-// El archivo .db no se sube a GitHub (está en .gitignore): se crea con database/instalar.php
-const RUTA_DB = __DIR__ . '/../database/cinenova.db';
+/* Ruta del archivo de la base. Por defecto es database/cinenova.db dentro del proyecto (__DIR__ es la
+   carpeta de ESTE archivo, php/; por eso se sube un nivel con ..).
+
+   Para guardarla en otro lugar, por ejemplo FUERA de la carpeta pública de un hosting (así nadie puede
+   descargarla desde el navegador), crea en la raíz del proyecto un archivo config.local.php:
+
+       <?php return ['ruta_db' => '/home/mi-cuenta/datos/cinenova.db'];
+
+   config.local.php no se sube a GitHub (está en .gitignore). El archivo .db tampoco: se crea con
+   database/instalar.php, que usa esta misma ruta. */
+function ruta_base_datos(): string
+{
+    $config = __DIR__ . '/../config.local.php';
+    if (is_file($config)) {
+        $datos = require $config;
+        if (is_array($datos) && !empty($datos['ruta_db'])) {
+            return (string)$datos['ruta_db'];
+        }
+    }
+    return __DIR__ . '/../database/cinenova.db';
+}
+
+define('RUTA_DB', ruta_base_datos());
 
 /* Devuelve la conexión (objeto PDO). La primera vez la crea y las siguientes
    reutiliza la misma, gracias a "static". */

@@ -229,7 +229,7 @@ function procesar_compra(array $f, int $idUsuario): string
         if ($pdo->inTransaction()) $pdo->rollBack();
         error_log('CineNova, compra fallida: ' . $error->getMessage()); // con php -S se ve en la terminal
         if (strpos($error->getMessage(), 'ID_Usuario') !== false) {
-            return 'La base de datos es de una versión anterior. Bórrala (database/cinenova.db) y ejecuta de nuevo: php database/instalar.php';
+            return 'La base de datos es de una versión anterior. Bórrala (el archivo cinenova.db) y ejecuta de nuevo: php database/instalar.php';
         }
         // El índice único ux_entrada_butaca impide vender dos veces la misma butaca (por ejemplo, si dos
         // personas la eligen casi a la vez): la segunda compra falla con un error que contiene "UNIQUE".
