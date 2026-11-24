@@ -1,4 +1,4 @@
-# CineNova (hay que cambiarlo)
+# CineRubi 
 
 ## Requisitos
 
